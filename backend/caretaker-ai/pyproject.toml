@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "caretaker-ai"
+version = "0.1.0"
+description = ""
+authors = ["Ahmed Moubtahij <ahmed.moubtahij@crim.ca>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain = "^0.3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
