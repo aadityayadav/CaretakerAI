@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Box, Button } from "@chakra-ui/react";
-import { useSpeechRecognition } from "react-speech-recognition";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import { keyframes } from "@emotion/react";
 
 const pulse = keyframes`
@@ -22,11 +22,13 @@ export default function Home() {
     transcript,
     listening,
     resetTranscript,
+    isMicrophoneAvailable,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
   useEffect(() => {
     setIsMounted(true);
+    SpeechRecognition.startListening();
   }, []);
 
   if (!isMounted) {
@@ -36,6 +38,13 @@ export default function Home() {
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
   }
+
+  if (!isMicrophoneAvailable) {
+    return <span>Microphone not available.</span>;
+  }
+
+
+  function 
 
   return (
     <Box
