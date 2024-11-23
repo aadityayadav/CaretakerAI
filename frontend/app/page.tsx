@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Box, Button } from "@chakra-ui/react";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { Box, Button, Text, Heading, Image, Flex } from "@chakra-ui/react";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 import { keyframes } from "@emotion/react";
 
 const pulse = keyframes`
@@ -16,7 +18,6 @@ const pulseBackground = keyframes`
 `;
 
 export default function Home() {
-  const [isPulsating, setIsPulsating] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const {
     transcript,
@@ -28,7 +29,6 @@ export default function Home() {
 
   useEffect(() => {
     setIsMounted(true);
-    SpeechRecognition.startListening();
   }, []);
 
   if (!isMounted) {
@@ -43,19 +43,43 @@ export default function Home() {
     return <span>Microphone not available.</span>;
   }
 
-
-  function 
+  function toggleListening() {
+    if (listening) {
+      SpeechRecognition.stopListening();
+    } else {
+      SpeechRecognition.startListening({ continuous: true });
+    }
+  }
 
   return (
     <Box
-      display="flex"
-      flexDirection="row"
-      alignItems={"center"}
-      justifyContent={"center"}
+      position="relative"
       height="100vh"
       background="radial-gradient(circle, rgba(220,220,235,1) 0%, rgba(230,230,255,1) 100%)"
     >
-      <Box display="flex" flexDirection="column" alignItems={"center"} gap={12}>
+      <Box
+        position="absolute"
+        top="70px"
+        left="50%"
+        transform="translateX(-50%)"
+        display="flex"
+        flexDirection="row"
+        alignItems="center"
+        gap={2}
+      >
+        <Image src="/logo3.png" alt="CaretakerAI" width={55} />
+        <Heading fontSize={"5xl"} fontWeight={"medium"}>
+          CaretakerAI
+        </Heading>
+      </Box>
+
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        height="100%"
+        gap={4}
+      >
         <Box position="relative" width="100px" height="100px">
           <Box
             position="absolute"
@@ -65,9 +89,7 @@ export default function Home() {
             height="100%"
             borderRadius="50%"
             background="gray"
-            animation={
-              isPulsating ? `${pulseBackground} 1.5s infinite` : "none"
-            }
+            animation={listening ? `${pulseBackground} 1.5s infinite` : "none"}
           />
           <Box
             position="absolute"
@@ -78,14 +100,13 @@ export default function Home() {
             borderRadius="50%"
             background="radial-gradient(circle, rgba(240,240,240,1) 40%, transparent 30%), linear-gradient(to right, cyan, blue, purple)"
             border="none"
-            animation={isPulsating ? `${pulse} 1.5s infinite` : "none"}
+            animation={listening ? `${pulse} 1.5s infinite` : "none"}
           />
         </Box>
-
-        <Button onClick={() => setIsPulsating(!isPulsating)}>
-          Toggle Pulse
-        </Button>
-      </Box>
+        <Text>{transcript}</Text>
+        <Button onClick={() => toggleListening()}>Start Listening</Button>
+      </Flex>
     </Box>
   );
 }
+
