@@ -1,12 +1,8 @@
 "use client";
-import Image from "next/image";
-import styles from "./page.module.css";
+import { useEffect, useState } from "react";
 import { Box, Button } from "@chakra-ui/react";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
+import { useSpeechRecognition } from "react-speech-recognition";
 import { keyframes } from "@emotion/react";
-import { useState } from "react";
 
 const pulse = keyframes`
   0% { transform: scale(1); opacity: 1; }
@@ -21,6 +17,25 @@ const pulseBackground = keyframes`
 
 export default function Home() {
   const [isPulsating, setIsPulsating] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null; // Render nothing on the server
+  }
+
+  if (!browserSupportsSpeechRecognition) {
+    return <span>Browser doesn't support speech recognition.</span>;
+  }
 
   return (
     <Box
@@ -29,6 +44,7 @@ export default function Home() {
       alignItems={"center"}
       justifyContent={"center"}
       height="100vh"
+      background="radial-gradient(circle, rgba(220,220,235,1) 0%, rgba(230,230,255,1) 100%)"
     >
       <Box display="flex" flexDirection="column" alignItems={"center"} gap={12}>
         <Box position="relative" width="100px" height="100px">
@@ -40,7 +56,9 @@ export default function Home() {
             height="100%"
             borderRadius="50%"
             background="gray"
-            animation={isPulsating ? `${pulseBackground} 1.5s infinite` : "none"}
+            animation={
+              isPulsating ? `${pulseBackground} 1.5s infinite` : "none"
+            }
           />
           <Box
             position="absolute"
@@ -49,13 +67,15 @@ export default function Home() {
             width="100%"
             height="100%"
             borderRadius="50%"
-            background="radial-gradient(circle, white 40%, transparent 30%), linear-gradient(to right, cyan, blue, purple)"
+            background="radial-gradient(circle, rgba(240,240,240,1) 40%, transparent 30%), linear-gradient(to right, cyan, blue, purple)"
             border="none"
             animation={isPulsating ? `${pulse} 1.5s infinite` : "none"}
           />
         </Box>
 
-        <Button onClick={() => setIsPulsating(!isPulsating)}>Toggle Pulse</Button>
+        <Button onClick={() => setIsPulsating(!isPulsating)}>
+          Toggle Pulse
+        </Button>
       </Box>
     </Box>
   );
