@@ -1,5 +1,6 @@
 // app/layout.tsx
 "use client";
+import "regenerator-runtime/runtime";
 import { Providers } from "./providers";
 
 export default function RootLayout({
