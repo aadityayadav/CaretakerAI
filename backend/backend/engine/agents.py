@@ -102,7 +102,7 @@ Expected call: query-db-tool(name="Bob", fields=["symptoms", "past_diagnoses"], 
 </example>
 <example>
 User: Give me past diagnosis for Carol
-Expected call: query-db-tool(name="Carol", fields=["diagnoses"])
+Expected call: query-db-tool(name="Carol", fields=["past_diagnoses"])
 </example>
 
 ERROR SCENARIOS:
