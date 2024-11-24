@@ -2,6 +2,7 @@
 import { Box, Image, Heading } from "@chakra-ui/react";
 import { use } from "react";
 import Ai from "@/app/components/ai";
+import { Text } from '@chakra-ui/react'
 export default function ViewPatientSummary({
   params,
 }: {
@@ -19,7 +20,16 @@ export default function ViewPatientSummary({
         borderRadius="lg"
         boxShadow="sm"
       >
-        <Heading>Patient Summary</Heading>
+        <Heading>Patient Summary: {patientId}</Heading>
+        <br />
+        <Text>
+          This is a summary of the patient's medical history and current
+          condition. Bla bla bla bla bla bla bla bla bla bla bla bla bla bla
+          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolore numquam
+          libero mollitia dicta sit quidem veritatis animi quo, itaque,
+          accusantium repellendus ea laborum beatae amet expedita nihil, autem
+          veniam aperiam!
+        </Text>
       </Box>
       <Box width={"50%"} pt={4}>
         <Ai params={Promise.resolve({ userId: patientId })} isDoctor={true} />
