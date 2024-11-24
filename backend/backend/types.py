@@ -35,3 +35,7 @@ class UserCreate(BaseModel):
     past_diagnoses: Optional[List[DiagnosisBase]] = None
     allergies: Optional[List[AllergyBase]] = None
     medications: Optional[List[MedicationBase]] = None
+    
+class QueryBody(BaseModel):
+    query: str
+    history: Optional[List[str]] = None

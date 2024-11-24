@@ -7,3 +7,8 @@ class CalculateInputsSchema(BaseModel):
     min_length=1,
     max_length=100
     )
+
+class LogSymptomSchema(BaseModel):
+    description: str = Field(
+        description="Description of the symptom faced by user.",
+    )
