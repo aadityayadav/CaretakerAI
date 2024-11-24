@@ -105,6 +105,8 @@ export default function Ai({
   };
 
   useEffect(() => {
+    if (!isActivated) return;
+
     if (
       !listening &&
       transcript.trim() &&
@@ -155,8 +157,8 @@ export default function Ai({
         });
 
       // Remove the automatic restart of listening here since we'll handle it after audio plays
-    } else if (!listening && !transcript.trim()) {
-      // Restart listening if there's no transcript (timeout from silence)
+    } else if (!listening && !transcript.trim() && isActivated) {
+      // Only restart listening if activated
       SpeechRecognition.startListening();
     }
   }, [
@@ -166,6 +168,7 @@ export default function Ai({
     chatHistory,
     cumulativeTranscript,
     processedTranscripts,
+    isActivated,
   ]);
 
   // Modify cleanup to also handle audio
