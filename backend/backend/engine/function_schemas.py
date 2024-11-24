@@ -12,3 +12,8 @@ class LogSymptomSchema(BaseModel):
     description: str = Field(
         description="Description of the symptom faced by user.",
     )
+
+class SendEmailSchema(BaseModel):
+    contents: str = Field(
+        description= "The user's description of the issue verbatim."
+    )
