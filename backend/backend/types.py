@@ -23,7 +23,7 @@ class MedicationBase(BaseModel):
     description: Optional[str] = None
     dosage: Optional[str] = None
     frequency: Optional[str] = None
-    
+
 class HealthCondition(BaseModel):
     name: str
     date: datetime
@@ -44,7 +44,8 @@ class UserCreate(BaseModel):
 class HistoryModel(BaseModel):
     role: str
     content: str
-    
+
 class QueryBody(BaseModel):
     query: str
+    summarize: Optional[bool] = False
     history: Optional[List[HistoryModel]] = None

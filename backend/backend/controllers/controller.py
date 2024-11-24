@@ -5,7 +5,7 @@ from backend.types import UserCreate, QueryBody
 from backend.engine.agents import create_user_agent, create_doctor_agent
 from backend.engine.llm import get_model
 from fastapi.middleware.cors import CORSMiddleware
-from backend.engine.chain import check_discrepancies
+from backend.engine.chain import check_discrepancies, summarize_fetched_patient_data
 
 app = FastAPI()
 llm = get_model()
@@ -76,11 +76,17 @@ async def doctor_query(query: QueryBody):
         result = doctor_agent.invoke({
             "input": query.query,
             "chat_history": history if history else []
-        });
+        })
+
+        print(f"{query.summarize=}")
+        if query.summarize:
+            print(result['output'])
+            sum = summarize_fetched_patient_data(llm, result['output'])
 
         return {
             "status": "success",
-            "result": result['output']
+            "result": result['output'],
+            "summary": sum['output'] if query.summarize else None
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
