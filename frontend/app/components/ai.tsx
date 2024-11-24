@@ -15,7 +15,7 @@ const pulse = keyframes`
 `;
 
 const pulseBackground = keyframes`
-  0% { transform: scale(0.5); opacity: 0.5; }
+  0% { transform: scale(1); opacity: 0.15; }
   100% { transform: scale(1.5); opacity: 0; }
 `;
 
@@ -205,14 +205,25 @@ export default function Ai({
       <Flex direction="column" align="center" justify="center" gap={4}>
         {!isActivated ? (
           <Button
+            position="relative"
             bg={isDoctor ? "#FB8B24" : "#0081FB"}
             color="white"
             _hover={{ bg: isDoctor ? "#e07d20" : "#006ee0" }}
             size="lg"
             onClick={handleActivate}
-            mb={4}
             borderRadius="full"
             rightIcon={<ArrowForwardIcon />}
+            minW="180px"
+            h="48px"
+            _before={{
+              content: '""',
+              position: 'absolute',
+              inset: '-4px',
+              borderRadius: 'full',
+              background: isDoctor ? "#FB8B24" : "#0081FB",
+              animation: `${pulseBackground} 2.5s infinite`,
+              zIndex: -1,
+            }}
           >
             {isDoctor ? "Activate Doctor" : "Activate Caretaker"}
           </Button>
