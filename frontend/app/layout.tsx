@@ -6,7 +6,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import "@fontsource/montserrat"; // Import Montserrat font
 import { extendTheme } from "@chakra-ui/react";
 import { Box } from "@chakra-ui/react";
-import Header from "./components/Header";
+import Header from "./components/header";
 
 const theme = extendTheme({
   fonts: {

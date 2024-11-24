@@ -5,6 +5,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { keyframes } from "@emotion/react";
+import { use } from "react";
 
 const pulse = keyframes`
   0% { transform: scale(1); opacity: 1; }
@@ -20,8 +21,9 @@ const pulseBackground = keyframes`
 export default function PatientPage({
   params,
 }: {
-  params: { patientId: string };
+  params: Promise<{ patientId: string }>;
 }) {
+  const { patientId } = use(params);
   const [isMounted, setIsMounted] = useState(false);
   const {
     transcript,
@@ -82,7 +84,9 @@ export default function PatientPage({
               height="100%"
               borderRadius="50%"
               background="gray"
-              animation={listening ? `${pulseBackground} 1.5s infinite` : "none"}
+              animation={
+                listening ? `${pulseBackground} 1.5s infinite` : "none"
+              }
             />
             <Box
               position="absolute"
