@@ -49,7 +49,7 @@ If the user asks or says something that is not related to the above tools, do no
 
 def create_user_agent(llm):
     """Create a function calling agent for mathematical calculations"""
-    
+
     # Create a proper tool from the calculate function
 
     tools = [reminder, notify_caretaker, log_symptom]
@@ -65,7 +65,7 @@ def create_user_agent(llm):
 
     # Create the agent
     agent = create_tool_calling_agent(llm, tools, prompt)
-    
+
     # Create the executor
     agent_executor = AgentExecutor(
         agent=agent,
@@ -73,7 +73,7 @@ def create_user_agent(llm):
         verbose=True,
         handle_parsing_errors=True
     )
-    
+
     return agent_executor
 
 SYSTEM_PROMPT_DOCTOR="""
@@ -113,7 +113,7 @@ ERROR SCENARIOS:
 
 def create_doctor_agent(llm):
     """Create a function calling agent for mathematical calculations"""
-    
+
     # Create a proper tool from the calculate function
     tools = [query_db]
 
@@ -125,9 +125,13 @@ def create_doctor_agent(llm):
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ])
 
+    print(f"{type(prompt)=}")
+    print(f"{prompt=}")
+    print(f"{prompt.messages=}")
+
     # Create the agent
     agent = create_tool_calling_agent(llm, tools, prompt)
-    
+
     # Create the executor
     agent_executor = AgentExecutor(
         agent=agent,
@@ -135,7 +139,7 @@ def create_doctor_agent(llm):
         verbose=True,
         handle_parsing_errors=True
     )
-    
+
     return agent_executor
 
 
@@ -154,7 +158,7 @@ agent = create_doctor_agent(llm)
 #         result = agent.invoke(input_obj)
 #         # Print the result
 #         print("\nResult:", result['output'])
-#         print("\n----------------------------------------")   
+#         print("\n----------------------------------------")
 #         chat_history.append({
 #             "role": "user",
 #             "content": query

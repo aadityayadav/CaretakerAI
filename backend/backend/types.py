@@ -47,5 +47,4 @@ class HistoryModel(BaseModel):
 
 class QueryBody(BaseModel):
     query: str
-    summarize: Optional[bool] = False
     history: Optional[List[HistoryModel]] = None
