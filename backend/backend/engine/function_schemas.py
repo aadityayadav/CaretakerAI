@@ -13,6 +13,7 @@ class LogSymptomSchema(BaseModel):
         description="Description of the symptom faced by user.",
     )
 
+
 class QueryDateRange(BaseModel):
     name: str = Field(
         description="Name of the user."
@@ -32,7 +33,7 @@ class QueryField(BaseModel):
         description="Field to query information, select out of allergies, medications, symptoms, past_diagnoses"
     )
     
-
+    
 class ReminderSchema(BaseModel):
     description: str = Field(
         description="Why the reminder is being created"
@@ -44,3 +45,11 @@ class ReminderSchema(BaseModel):
     #     description="How frequently should the reminder be repeated"
     # )
 
+
+        
+
+class SendEmailSchema(BaseModel):
+    contents: str = Field(
+        description= "The user's description of the issue verbatim."
+
+    )

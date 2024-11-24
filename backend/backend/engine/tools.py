@@ -9,6 +9,9 @@ from twilio.rest import Client
 import os
 from dotenv import load_dotenv
 load_dotenv()
+from backend.engine.utils.sendEmail import send_email
+# Symptom logging function
+
 
 # Symptom logging function
 db = MongoDB.connect_to_mongodb()["users"]
@@ -26,6 +29,7 @@ def log_symptom(description: str):
     }
     db.update_one(user_query, update_command)
 
+
 @tool("reminder-tool", args_schema=ReminderSchema, return_direct=True)
 # def reminder(description: str, reminder_times: list, frequency:int ) -> Any:
 def reminder(description: str) -> Any:
@@ -42,6 +46,12 @@ def reminder(description: str) -> Any:
         # sendAt=datetime(2024, 11, 23, 23, 55, 27),
     )
         
+
+@tool("notify-caretaker-tool", args_schema=SendEmailSchema, return_direct=True)
+def notify_caretaker(contents: str) -> Any:
+    """Evaluates primary caretaker in case of emergency. Only to be used when user reports a high severity or pain level higher than 10"""
+    send_email(sender_name="Alice", recipient_name="Doc Name", body=contents)
+
 
 @tool("calculate-tool", args_schema=CalculateInputsSchema, return_direct=True)
 def calculate(expression: str) -> Any:

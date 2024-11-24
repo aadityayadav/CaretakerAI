@@ -32,14 +32,92 @@ export default function PatientPage({
     isMicrophoneAvailable,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
+  const [forceUpdate, setForceUpdate] = useState(0);
+  const [chatHistory, setChatHistory] = useState<
+    { role: string; content: string }[]
+  >([]);
+  const [cumulativeTranscript, setCumulativeTranscript] = useState("");
+  const [processedTranscripts, setProcessedTranscripts] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     setIsMounted(true);
-    SpeechRecognition.startListening({ continuous: true });
+    SpeechRecognition.startListening();
 
     return () => {
       SpeechRecognition.stopListening();
       resetTranscript();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      !listening &&
+      transcript.trim() &&
+      !processedTranscripts.has(transcript)
+    ) {
+      // Mark this transcript as processed
+      setProcessedTranscripts((prev) => new Set(prev).add(transcript));
+
+      console.log("Transcript:", transcript);
+
+      const newCumulativeTranscript = cumulativeTranscript + " " + transcript;
+      setCumulativeTranscript(newCumulativeTranscript);
+
+      const postData = {
+        query: newCumulativeTranscript.trim(),
+        history: chatHistory,
+      };
+
+      console.log("Sending POST request with data:", postData);
+
+      fetch("http://127.0.0.1:8000/user/query/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Received response:", data);
+          if (data.result) {
+            const newHistory = [
+              ...chatHistory,
+              { role: "user", content: transcript.trim() },
+              { role: "assistant", content: data.result },
+            ];
+            setChatHistory(newHistory);
+          }
+        })
+        .catch((error) => console.error("Error posting transcript:", error));
+
+      // Continue listening
+      setTimeout(() => {
+        SpeechRecognition.startListening();
+        setForceUpdate((prev) => prev + 1);
+      }, 100);
+    } else if (!listening) {
+      // If there's no transcript but listening stopped, restart listening
+      setTimeout(() => {
+        SpeechRecognition.startListening();
+        setForceUpdate((prev) => prev + 1);
+      }, 100);
+    }
+  }, [
+    listening,
+    forceUpdate,
+    transcript,
+    chatHistory,
+    cumulativeTranscript,
+    processedTranscripts,
+  ]);
+
+  // Add this to ensure cleanup
+  useEffect(() => {
+    return () => {
+      SpeechRecognition.stopListening();
     };
   }, []);
 
