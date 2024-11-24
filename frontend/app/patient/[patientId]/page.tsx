@@ -144,6 +144,9 @@ export default function PatientPage({
         });
 
       // Remove the automatic restart of listening here since we'll handle it after audio plays
+    } else if (!listening && !transcript.trim()) {
+      // Restart listening if there's no transcript (timeout from silence)
+      SpeechRecognition.startListening();
     }
   }, [
     listening,
