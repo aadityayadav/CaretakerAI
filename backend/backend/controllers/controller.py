@@ -50,9 +50,12 @@ async def register_user(user: UserCreate):
 @app.post("/user/query")
 async def user_query(query: QueryBody):
     try:
+        history = []
+        if query.history:
+            history = [q.model_dump() for q in query.history]
         result = agent.invoke({
             "input": query.query,
-            "chat_history": query.history if query.history else []
+            "chat_history": history if history else []
         });
 
         return {

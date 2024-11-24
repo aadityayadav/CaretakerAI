@@ -40,7 +40,11 @@ class UserCreate(BaseModel):
     allergies: Optional[List[AllergyBase]] = None
     medications: Optional[List[MedicationBase]] = None
     health_conditions: Optional[List[HealthCondition]] = None
+
+class HistoryModel(BaseModel):
+    role: str
+    content: str
     
 class QueryBody(BaseModel):
     query: str
-    history: Optional[List[str]] = None
+    history: Optional[List[HistoryModel]] = None
