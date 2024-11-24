@@ -26,7 +26,6 @@ pipeline = [
 
 # Execute the aggregation
 result = list(db.aggregate(pipeline))
-print(result)
 
 prompt=f"""
 You will be provided a user's recent health history in JSON format. 
@@ -35,6 +34,15 @@ Here are examples of some scenarios you should report on if they are detected:
 - When the user has two opposite symptom descriptions
 - The user was prescribed medication that they are allergic to, or are not recommended given their medical conditions
 - There are conflicting set of diagnostics for the user
+
+Examples of conflicting situations:
+I feel extremely fatigued all the time, I don't feel tired at all and have plenty of energy.
+I don't feel tired at all and have plenty of energy, I feel extremely fatigued all the time.
+I have severe headaches every morning, I rarely experience headaches.
+I rarely experience headaches, I have severe headaches every morning.
+
+If the severity of something has gotten better or worse with time, do not flag that as an issue.
+
 Only list a discrepancy if you are confident that it may be a potential issue.
 For each discrepancy, create a bullet point briefly explaining the issue and the property or properties it affects
 Only list the bullet point themselves and nothing else.
@@ -43,6 +51,6 @@ Only list the bullet point themselves and nothing else.
 </user_information>
 """
 
-llm = get_model()
-response = llm.invoke(["input", prompt])
-print(response.content)
+def check_discrepancies(llm):
+    response = llm.invoke(["input", prompt])
+    return response

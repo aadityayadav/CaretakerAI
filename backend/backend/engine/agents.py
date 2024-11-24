@@ -47,7 +47,7 @@ If the user asks for help with tasks that are outside the tools available to you
 If the user asks or says something that is not related to the above tools, do not respond.
 """
 
-def create_math_agent(llm):
+def create_user_agent(llm):
     """Create a function calling agent for mathematical calculations"""
     
     # Create a proper tool from the calculate function
@@ -82,7 +82,6 @@ You have a tool called query-db-tool that can look up a user's details by their 
 TOOL USAGE RULES:
 - Patient name is mandatory for all queries
 - Add fields to db query call when the user specifically asks for one or more of the supported fields
-
 
 EXAMPLES:
 <example>
