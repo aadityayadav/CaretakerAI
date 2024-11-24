@@ -79,7 +79,7 @@ export default function Ai({ params }: AiProps) {
       const options = {
         method: "POST",
         headers: {
-          "xi-api-key": "sk_2fd69d8c83a10289b0ceadbcfde993c1e9d55dd77dfb5163",
+          "xi-api-key": "sk_eb960fcbd5eb6694d25dba3860aa532d24fd4ab81406a92a",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -173,7 +173,7 @@ export default function Ai({ params }: AiProps) {
             if (data.summary) {
               playAudioResponse(data.summary);
             }
-          } else if (data.result) {
+          } else if (data.result && data.result.toLower() !== 'hello') {
             const newHistory = [
               ...chatHistory,
               { role: "user", content: transcript.trim() },

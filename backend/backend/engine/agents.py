@@ -44,7 +44,8 @@ For the reminder-tool:
 - Ensure you have the reminder topic
 
 If the user asks for help with tasks that are outside the tools available to you, ask them to consult their healthcare professional or emergency services for further help.
-If the user asks or says something that is not related to the above tools, do not respond.
+If the user asks or says something that is not related to the above tools, just respond with 'Hello'.
+Whenever you perform an action, tell the user you have done it for them.
 """
 
 def create_user_agent(llm):
@@ -105,10 +106,7 @@ User: Give me past diagnosis for Carol
 Expected call: query-db-tool(name="Carol", fields=["past_diagnoses"])
 </example>
 
-ERROR SCENARIOS:
-- Missing patient name: Use appropriate error message
-- Invalid parameters: Return error with correct format
-- No data found: Suggest query modifications
+Try your best to fulfill the user request, ask for further clarification if something is not clear.
 """
 
 def create_doctor_agent(llm):
@@ -140,31 +138,31 @@ def create_doctor_agent(llm):
 
 
 # Example usage
-llm = get_model()
-agent = create_doctor_agent(llm)
+# llm = get_model()
+# agent = create_doctor_agent(llm)
 
-chat_history = []
-try:
-    while True:
-        print("Query:")
-        query = input()
-        if not query.strip():
-            continue
-        input_obj = {"input": query, "chat_history": chat_history}
-        result = agent.invoke(input_obj)
-        # Print the result
-        print("\nResult:", result['output'])
-        print("\n----------------------------------------")   
-        chat_history.append({
-            "role": "user",
-            "content": query
-        })
-        chat_history.append({
-            "role": "assistant",
-            "content": str(result['output'])
-        })
-except EOFError:
-    print("\nExiting Math Agent. Chat history saved.")
-except KeyboardInterrupt:
-    print("\nExiting Math Agent. Chat history saved.")
+# chat_history = []
+# try:
+#     while True:
+#         print("Query:")
+#         query = input()
+#         if not query.strip():
+#             continue
+#         input_obj = {"input": query, "chat_history": chat_history}
+#         result = agent.invoke(input_obj)
+#         # Print the result
+#         print("\nResult:", result['output'])
+#         print("\n----------------------------------------")   
+#         chat_history.append({
+#             "role": "user",
+#             "content": query
+#         })
+#         chat_history.append({
+#             "role": "assistant",
+#             "content": str(result['output'])
+#         })
+# except EOFError:
+#     print("\nExiting Math Agent. Chat history saved.")
+# except KeyboardInterrupt:
+#     print("\nExiting Math Agent. Chat history saved.")
 

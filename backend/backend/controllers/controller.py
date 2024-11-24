@@ -78,15 +78,14 @@ async def doctor_query(query: QueryBody):
             "input": query.query,
             "chat_history": history if history else []
         })
-
-        print(f"{query.summarize}")
-        if query.summarize:
+        summary = None
+        if isinstance(result['output'], dict):
             summary = summarize_fetched_patient_data(llm, str(result['output']))
 
         return {
             "status": "success",
             "result": result['output'],
-            "summary": summary.content if query.summarize else None
+            "summary": summary.content if summary else None
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -51,12 +51,20 @@ Only list the bullet point themselves and nothing else.
 </user_information>
 """
 
+SUMMARIZE_INFO_PROMPT="""
+Assume these are results for some medical data you returned from a database:
+{json_to_summarize}
+
+Very briefly summarize the findings.
+"""
+
 def check_discrepancies(llm):
     prompt = CHECK_DISCREPANCIES_PROMPT.format(result=result)
     response = llm.invoke([prompt])
     return response
 
 def summarize_fetched_patient_data(llm, json_to_summarize):
-    prompt = f"Please provide a concise medical summary of the following patient data:\n{json_to_summarize}"
+    prompt = SUMMARIZE_INFO_PROMPT.format(json_to_summarize=json_to_summarize)
     response = llm.invoke([prompt])
+    print("CHAIN CALLED")
     return response
