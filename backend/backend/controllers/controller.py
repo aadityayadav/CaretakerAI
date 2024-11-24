@@ -1,47 +1,71 @@
-import fastapi
-from fastapi import HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from backend.config.database import MongoDB
 from datetime import datetime
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List
+from contextlib import asynccontextmanager
 
-# Use your existing MongoDB connection
-uri = "mongodb+srv://aadityayadav2003:j8EKQQ7fwpvzm6d5@metacluster.9wjb6.mongodb.net/?retryWrites=true&w=majority&appName=MetaCluster&tlsAllowInvalidCertificates=true"
-client = MongoClient(uri, server_api=ServerApi('1'))
-db = client["client_db"]
+app = FastAPI()
 
-app = fastapi.FastAPI()
+# Use FastAPI's lifespan for managing the connection
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Connect to MongoDB on startup
+    app.mongodb = MongoDB.connect_to_mongodb()
+    yield
+    # Close MongoDB connection on shutdown
+    MongoDB.close_mongodb_connection()
 
-# Create a user model matching your MongoDB schema
+app = FastAPI(lifespan=lifespan)
+
+# Pydantic models for request validation
+class SymptomBase(BaseModel):
+    description: str
+    date: datetime
+
+class DiagnosisBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    doctor_name: Optional[str] = None
+    date: datetime
+
+class AllergyBase(BaseModel):
+    name: str
+    date: datetime
+
+class MedicationBase(BaseModel):
+    name: str
+    date: datetime
+    description: Optional[str] = None
+    dosage: Optional[str] = None
+    frequency: Optional[str] = None
+
 class UserCreate(BaseModel):
     name: str
-    email: str
-    age: int
-    gender: str | None = None
-    weight: float | None = None
-    height: float | None = None
+    email: EmailStr
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    symptoms: Optional[List[SymptomBase]] = None
+    past_diagnoses: Optional[List[DiagnosisBase]] = None
+    allergies: Optional[List[AllergyBase]] = None
+    medications: Optional[List[MedicationBase]] = None
 
-@app.post("/users/register")
+@app.post("/register")
 async def register_user(user: UserCreate):
     try:
-        # Check if user already exists
-        if db.users.find_one({"email": user.email}):
-            raise HTTPException(status_code=400, detail="Email already registered")
+        user_dict = user.model_dump()
+        if user.age is not None and user.age < 18:
+            raise HTTPException(status_code=400, detail="Age must be 18 or older")
 
-        # Create user document
-        user_data = user.model_dump()
-        # Initialize empty arrays for the required schema fields
-        user_data["symptoms"] = []
-        user_data["past_diagnoses"] = []
-        user_data["allergies"] = []
-        user_data["medications"] = []
-
-        result = db.users.insert_one(user_data)
+        # Use the MongoDB instance from the app state
+        result = app.mongodb.users.insert_one(user_dict)
 
         return {
+            "status": "success",
             "message": "User registered successfully",
             "user_id": str(result.inserted_id)
         }
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
