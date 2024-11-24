@@ -90,7 +90,7 @@ async def doctor_query(query: QueryBody):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/doctor/flags")
+@app.get("/doctor/flags/{name}")
 async def raise_flags(name: str):
     try:
         result = check_discrepancies(llm)

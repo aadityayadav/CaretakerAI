@@ -1,8 +1,9 @@
 "use client";
-import { Box, Image, Heading } from "@chakra-ui/react";
+import { Box, Image, Heading, Flex, Badge } from "@chakra-ui/react";
 import { use, useState } from "react";
 import Ai from "@/app/components/ai";
 import { Text, Divider } from "@chakra-ui/react";
+import { useEffect } from "react";
 
 // Import the MedicalRecord type from Ai component
 interface MedicalRecord {
@@ -36,6 +37,32 @@ export default function ViewPatientSummary({
 }) {
   const { patientId } = use(params);
   const [medicalData, setMedicalData] = useState<MedicalRecord | null>(null);
+  const [patientFlags, setPatientFlags] = useState<string[]>([]); // Changed to string array
+
+  useEffect(() => {
+    const fetchFlags = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/doctor/flags/Alice`,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        setPatientFlags(data.result.split("- ").filter((flag: string) => flag.trim()));
+      } catch (error) {
+        console.error("Error fetching flags:", error);
+      }
+    };
+
+    fetchFlags();
+    console.log(patientFlags);
+  }, []);
 
   return (
     <Box height={"100%"} display="flex" flexDirection="row" gap={4}>
@@ -47,6 +74,20 @@ export default function ViewPatientSummary({
         boxShadow="sm"
       >
         <Heading>Patient Summary: Alice</Heading>
+        <Flex flexWrap="wrap" gap={2}> 
+            {patientFlags.map((flag, index) => (
+              <Badge 
+                key={index}
+                colorScheme={flag.includes("reliable") ? "green" : "red"}
+                variant="subtle"
+                fontSize="0.8em"
+                size="xs"
+                whiteSpace="normal"
+              >
+                {flag}
+              </Badge>
+            ))}
+          </Flex>
         <Divider my={2} borderColor="blackAlpha.500" />
 
         {medicalData ? (

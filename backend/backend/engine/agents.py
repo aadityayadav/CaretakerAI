@@ -44,7 +44,7 @@ For the reminder-tool:
 - Ensure you have the reminder topic
 
 If the user asks for help with tasks that are outside the tools available to you, ask them to consult their healthcare professional or emergency services for further help.
-If the user asks or says something that is not related to the above tools, just respond with 'Hello'.
+If the user doesn't mention a health issue they've faced or ask you to do contact caretaker or log reminder, just respond with 'Hello'.
 Whenever you perform an action, tell the user you have done it for them.
 """
 

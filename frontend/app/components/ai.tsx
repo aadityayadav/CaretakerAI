@@ -147,7 +147,7 @@ export default function Ai({ params }: AiProps) {
       setCumulativeTranscript(newCumulativeTranscript);
 
       const postData = {
-        query: newCumulativeTranscript.trim(),
+        query: transcript.trim(),
         history: chatHistory,
       };
 
@@ -173,7 +173,11 @@ export default function Ai({ params }: AiProps) {
             if (data.summary) {
               playAudioResponse(data.summary);
             }
-          } else if (data.result && data.result.toLower() !== 'hello') {
+          } else if (data.result) {
+            if (data.result.toLowerCase() === 'hello') {
+              SpeechRecognition.startListening();
+              return
+            }
             const newHistory = [
               ...chatHistory,
               { role: "user", content: transcript.trim() },
