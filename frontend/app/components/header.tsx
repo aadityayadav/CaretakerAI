@@ -1,6 +1,6 @@
 import { Box, Image, Heading, Button, Select, Flex } from "@chakra-ui/react";
 import { AddIcon, ViewIcon } from "@chakra-ui/icons";
-import { FaUserInjured, FaUserMd } from "react-icons/fa";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -12,15 +12,21 @@ export default function Header() {
       background="rgba(255, 255, 255, 0.8)"
       padding={4}
       borderRadius="10px"
+      backdropFilter="blur(10px)"
+      boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
     >
       {/* Left side buttons */}
       <Flex gap={2}>
-        <Button size="sm" leftIcon={<AddIcon />}>
-          Add Patient
-        </Button>
-        <Button size="sm" leftIcon={<ViewIcon />}>
-          View Patient Summary
-        </Button>
+        <Link href="/add-patient">
+          <Button size="sm" leftIcon={<AddIcon />}>
+            Add Patient
+          </Button>
+        </Link>
+        <Link href="/patient-summary">
+          <Button size="sm" leftIcon={<ViewIcon />}>
+            View Patient Summary
+          </Button>
+        </Link>
       </Flex>
 
       {/* Center logo and title */}
