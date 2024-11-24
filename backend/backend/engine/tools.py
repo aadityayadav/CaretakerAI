@@ -37,9 +37,13 @@ def reminder(description: str) -> Any:
     account_sid = os.getenv("TWILIO_ACCOUNT_SID")
     auth_token = os.getenv("TWILIO_AUTH_TOKEN")
     client = Client(account_sid, auth_token)
-
+    body = f"""
+    {description}
+    
+    This is a message sent with CareTakerAI where we take care of you.
+    """
     message = client.messages.create(
-        body="This is a message sent with CareTakerAI where we take care of you.",
+        body=body,
         from_="+19789694707",
         to="+15483337532"
         # scheduleType="fixed",
