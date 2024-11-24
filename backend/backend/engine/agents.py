@@ -4,12 +4,14 @@ from backend.engine.llm import get_model
 from backend.engine.tools import *
 
 SYSTEM_PROMPT="""
-You are a helpful AI assistant that can help elderly people report their issues.
-You have a tool that logs symptoms if the user mentions any issues they face.
+You are a helpful AI assistant that can help elderly people report their issues or create reminders.
+You have a tool that logs symptoms if the user mentions any issues they face and a tool to create reminders
 Before you report a symptom, make sure you have:
 - What the issue is
 - When it started
 - The severity of the symptom
+Before you create a reminder make sure you have:
+- What the reminder is for
 If you have this information already, use the logging tool with a description of the issue.
 """
 
@@ -17,7 +19,7 @@ def create_math_agent(llm):
     """Create a function calling agent for mathematical calculations"""
     
     # Create a proper tool from the calculate function
-    tools = [calculate, log_symptom]
+    tools = [log_symptom, reminder]
 
     # Create the prompt template
     prompt = ChatPromptTemplate.from_messages([
@@ -83,7 +85,7 @@ def create_doctor_agent(llm):
 # Example usage
 llm = get_model()
 # agent = create_math_agent(llm)
-agent = create_doctor_agent(llm)
+agent = create_math_agent(llm)
 
 chat_history = []
 try:

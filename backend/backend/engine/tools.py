@@ -5,8 +5,12 @@ import json
 from datetime import datetime
 from backend.config.database import MongoDB
 from backend.types import SymptomBase
-# Symptom logging function
+from twilio.rest import Client
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
+# Symptom logging function
 db = MongoDB.connect_to_mongodb()["users"]
 
 @tool("log-symptom-tool", args_schema=LogSymptomSchema, return_direct=True)
@@ -21,6 +25,23 @@ def log_symptom(description: str):
         }
     }
     db.update_one(user_query, update_command)
+
+@tool("reminder-tool", args_schema=ReminderSchema, return_direct=True)
+# def reminder(description: str, reminder_times: list, frequency:int ) -> Any:
+def reminder(description: str) -> Any:
+    """Create a reminder"""
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+        body="This is a message sent with CareTakerAI where we take care of you.",
+        from_="+19789694707",
+        to="+15483337532"
+        # scheduleType="fixed",
+        # sendAt=datetime(2024, 11, 23, 23, 55, 27),
+    )
+        
 
 @tool("calculate-tool", args_schema=CalculateInputsSchema, return_direct=True)
 def calculate(expression: str) -> Any:

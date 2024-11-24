@@ -32,10 +32,15 @@ class QueryField(BaseModel):
         description="Field to query information, select out of allergies, medications, symptoms, past_diagnoses"
     )
     
-class Message(BaseModel):
-    name: str = Field(
-        description="Name of client"
+
+class ReminderSchema(BaseModel):
+    description: str = Field(
+        description="Why the reminder is being created"
     )
-    message_body: str = Field(
-        
-    )
+    # reminder_times: list = Field(
+    #     description="When should the reminder be triggered"
+    # )
+    # frequency:int = Field(
+    #     description="How frequently should the reminder be repeated"
+    # )
+
