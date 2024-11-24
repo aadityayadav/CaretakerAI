@@ -1,6 +1,7 @@
 "use client";
 import { Box, Image, Heading } from "@chakra-ui/react";
 import { use } from "react";
+import Ai from "@/app/components/ai";
 export default function ViewPatientSummary({
   params,
 }: {
@@ -21,7 +22,7 @@ export default function ViewPatientSummary({
         <Heading>Patient Summary</Heading>
       </Box>
       <Box width={"50%"} pt={4}>
-        <Heading>Patient Details</Heading>
+        <Ai params={Promise.resolve({ userId: patientId })} isDoctor={true} />
       </Box>
     </Box>
   );

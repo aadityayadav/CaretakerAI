@@ -21,7 +21,7 @@ const pulseBackground = keyframes`
 
 export default function Ai({
   params,
-  isDoctor = true,
+  isDoctor = false,
 }: {
   params: Promise<{ userId: string }>;
   isDoctor?: boolean;

@@ -11,6 +11,6 @@ export default function PatientPage({
 }) {
   const { patientId } = use(params);
   return (
-    <Ai params={Promise.resolve({ userId: patientId })} isDoctor={true} />
+    <Ai params={Promise.resolve({ userId: patientId })} isDoctor={false} />
   );
 }
