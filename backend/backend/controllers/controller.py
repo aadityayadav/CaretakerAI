@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from backend.types import UserCreate, QueryBody
 from backend.engine.agents import create_math_agent
 from backend.engine.llm import get_model
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 llm = get_model()
@@ -19,6 +20,14 @@ async def lifespan(app: FastAPI):
     MongoDB.close_mongodb_connection()
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/register")
 async def register_user(user: UserCreate):
@@ -41,9 +50,12 @@ async def register_user(user: UserCreate):
 @app.post("/user/query")
 async def user_query(query: QueryBody):
     try:
+        history = []
+        if query.history:
+            history = [q.model_dump() for q in query.history]
         result = agent.invoke({
             "input": query.query,
-            "chat_history": query.history if query.history else []
+            "chat_history": history if history else []
         });
 
         return {

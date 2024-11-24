@@ -13,6 +13,7 @@ class LogSymptomSchema(BaseModel):
         description="Description of the symptom faced by user.",
     )
 
+
 class QueryDateRange(BaseModel):
     name: str = Field(
         description="Name of the user."
@@ -38,4 +39,9 @@ class Message(BaseModel):
     )
     message_body: str = Field(
         
+
+class SendEmailSchema(BaseModel):
+    contents: str = Field(
+        description= "The user's description of the issue verbatim."
+
     )
