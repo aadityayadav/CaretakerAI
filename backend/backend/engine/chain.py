@@ -53,29 +53,10 @@ Only list the bullet point themselves and nothing else.
 
 def check_discrepancies(llm):
     prompt = CHECK_DISCREPANCIES_PROMPT.format(result=result)
-    response = llm.invoke(
-        {
-            "input": prompt
-        }
-    )
+    response = llm.invoke([prompt])
     return response
 
-def summarize_fetched_patient_data(llm, json_to_summarize: str):
-    prompt = """
-    Please provide a concise medical summary of the following patient data.
-    Focus on key points including:
-    - Primary symptoms
-    - Key diagnoses
-    - Important medications
-    - Critical health conditions
-    - Notable allergies
-
-    Patient Data:
-    {data}
-    """
-    response = llm.invoke(
-        {
-            "input": prompt.format(data=json_to_summarize),
-        }
-    )
+def summarize_fetched_patient_data(llm, json_to_summarize):
+    prompt = f"Please provide a concise medical summary of the following patient data:\n{json_to_summarize}"
+    response = llm.invoke([prompt])
     return response

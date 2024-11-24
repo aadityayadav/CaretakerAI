@@ -81,13 +81,12 @@ async def doctor_query(query: QueryBody):
 
         print(f"{query.summarize}")
         if query.summarize:
-            print(result['output'])
-            sum = summarize_fetched_patient_data(llm, str(result['output']))
+            summary = summarize_fetched_patient_data(llm, str(result['output']))
 
         return {
             "status": "success",
             "result": result['output'],
-            "summary": sum['output'] if query.summarize else None
+            "summary": summary.content if query.summarize else None
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -98,7 +97,7 @@ async def raise_flags(name: str):
         result = check_discrepancies(llm)
         return {
             "status": "success",
-            "result": result['output']
+            "result": result.content
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
