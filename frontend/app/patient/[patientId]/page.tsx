@@ -32,16 +32,36 @@ export default function PatientPage({
     isMicrophoneAvailable,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
-    SpeechRecognition.startListening({ continuous: true });
+    SpeechRecognition.startListening();
 
     return () => {
       SpeechRecognition.stopListening();
       resetTranscript();
     };
   }, []);
+
+  useEffect(() => {
+    if (!listening) {
+      // Small delay to ensure previous session is fully terminated
+      console.log("Transcript:", transcript);
+      setTimeout(() => {
+        SpeechRecognition.startListening();
+        setForceUpdate((prev) => prev + 1);
+      }, 100);
+    }
+  }, [listening, forceUpdate]);
+
+  // Add this to ensure cleanup
+  useEffect(() => {
+    return () => {
+      SpeechRecognition.stopListening();
+    };
+  }, []);
+
 
   if (!isMounted) {
     return null;
