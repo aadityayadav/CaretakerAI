@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Box, Button, Text, Heading, Image, Flex } from "@chakra-ui/react";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -40,6 +40,45 @@ export default function PatientPage({
   const [processedTranscripts, setProcessedTranscripts] = useState<Set<string>>(
     new Set()
   );
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playAudioResponse = async (text: string) => {
+    try {
+      const options = {
+        method: 'POST',
+        headers: {
+          'xi-api-key': 'sk_5bfd898b10d62dc9e595bb41daf17f4d2bcda1cbf6f1eb4a',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: text,
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5,
+            style: 1
+          }
+        })
+      };
+
+      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', options);
+      const audioBlob = await response.blob();
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+      
+      // Let the audio element handle playback through user interaction
+      if (audioRef.current) {
+        audioRef.current.onended = () => {
+          URL.revokeObjectURL(url);
+          setAudioUrl(null);
+          SpeechRecognition.startListening();
+        };
+      }
+    } catch (err) {
+      console.error('Error with text-to-speech:', err);
+      SpeechRecognition.startListening();
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -89,35 +128,30 @@ export default function PatientPage({
               { role: "assistant", content: data.result },
             ];
             setChatHistory(newHistory);
+            
+            // Stop listening before playing audio
+            SpeechRecognition.stopListening();
+            // Play the response
+            playAudioResponse(data.result);
           }
         })
-        .catch((error) => console.error("Error posting transcript:", error));
+        .catch((error) => {
+          console.error("Error posting transcript:", error);
+          SpeechRecognition.startListening();
+        });
 
-      // Continue listening
-      setTimeout(() => {
-        SpeechRecognition.startListening();
-        setForceUpdate((prev) => prev + 1);
-      }, 100);
-    } else if (!listening) {
-      // If there's no transcript but listening stopped, restart listening
-      setTimeout(() => {
-        SpeechRecognition.startListening();
-        setForceUpdate((prev) => prev + 1);
-      }, 100);
+      // Remove the automatic restart of listening here since we'll handle it after audio plays
     }
-  }, [
-    listening,
-    forceUpdate,
-    transcript,
-    chatHistory,
-    cumulativeTranscript,
-    processedTranscripts,
-  ]);
+  }, [listening, forceUpdate, transcript, chatHistory, cumulativeTranscript, processedTranscripts]);
 
-  // Add this to ensure cleanup
+  // Modify cleanup to also handle audio
   useEffect(() => {
     return () => {
       SpeechRecognition.stopListening();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, []);
 
@@ -180,6 +214,25 @@ export default function PatientPage({
           </Box>
           <Text mt={4}>{transcript}</Text>
         </Box>
+
+        {audioUrl && (
+          <Box mt={4} width="300px">
+            <audio
+              ref={audioRef}
+              controls
+              autoPlay
+              src={audioUrl}
+              onEnded={() => {
+                URL.revokeObjectURL(audioUrl);
+                setAudioUrl(null);
+                SpeechRecognition.startListening();
+              }}
+              style={{ width: '100%' }}
+            />
+          </Box>
+        )}
+
+
       </Flex>
     </Box>
   );
