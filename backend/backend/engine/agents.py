@@ -47,9 +47,9 @@ If the user asks for help with tasks that are outside the tools available to you
 If the user asks or says something that is not related to the above tools, do not respond.
 """
 
-def create_math_agent(llm):
+def create_user_agent(llm):
     """Create a function calling agent for mathematical calculations"""
-    
+
     # Create a proper tool from the calculate function
 
     tools = [reminder, notify_caretaker, log_symptom]
@@ -65,7 +65,7 @@ def create_math_agent(llm):
 
     # Create the agent
     agent = create_tool_calling_agent(llm, tools, prompt)
-    
+
     # Create the executor
     agent_executor = AgentExecutor(
         agent=agent,
@@ -73,15 +73,15 @@ def create_math_agent(llm):
         verbose=True,
         handle_parsing_errors=True
     )
-    
+
     return agent_executor
 
 SYSTEM_PROMPT_DOCTOR="""
 You are a helpful AI assistant that can help query information from a database.
 You have a tool to find the data given a date range and another tool to query data from specific fields.
 Pick one of the 2 tools to query the required data
-Before you report the result, make sure you have the 
-1) name 
+Before you report the result, make sure you have the
+1) name
 2) either a start and end date OR a field to query from.
 A query filed can only be allergies, medications, symptoms, past_diagnoses, health_conditions
 If asked for all data, add appropriate data ranges yourself
@@ -90,7 +90,7 @@ If you have this information already, use the logging tool with a description of
 
 def create_doctor_agent(llm):
     """Create a function calling agent for mathematical calculations"""
-    
+
     # Create a proper tool from the calculate function
     tools = [query_by_name_and_date_range, query_by_name_and_field]
 
@@ -104,7 +104,7 @@ def create_doctor_agent(llm):
 
     # Create the agent
     agent = create_tool_calling_agent(llm, tools, prompt)
-    
+
     # Create the executor
     agent_executor = AgentExecutor(
         agent=agent,
@@ -112,14 +112,14 @@ def create_doctor_agent(llm):
         verbose=True,
         handle_parsing_errors=True
     )
-    
+
     return agent_executor
 
 
 # Example usage
 llm = get_model()
-# agent = create_math_agent(llm)
-agent = create_math_agent(llm)
+# agent = create_user_agent(llm)
+agent = create_user_agent(llm)
 
 # chat_history = []
 # try:
@@ -132,7 +132,7 @@ agent = create_math_agent(llm)
 #         result = agent.invoke(input_obj)
 #         # Print the result
 #         print("\nResult:", result['output'])
-#         print("\n----------------------------------------")   
+#         print("\n----------------------------------------")
 #         chat_history.append({
 #             "role": "user",
 #             "content": query
