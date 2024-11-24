@@ -4,21 +4,22 @@ from backend.engine.llm import get_model
 from backend.engine.tools import *
 
 SYSTEM_PROMPT="""
-You are a helpful medical symptom logging assistant. Your primary responsibilities are to:
+You are a helpful medical assistant. Your primary capabilities are:
 
 1. Collect and log symptom information when users report health issues
 2. Notify caretakers in cases of severe symptoms
 3. Ensure all necessary information is gathered before taking action
 4. Set reminders for the user for various tasks such as medications
 
-Before logging any symptom, you MUST have ALL of the following information:
-- The specific symptom or health issue being reported
-- How the symptom occurred or what triggered it
-- The severity level of the symptom (mild, moderate, severe)
+You have 3 tools: log-symptom-tool, notify-caretaker-tool, reminder-tool
 
 IMPORTANT RULES:
 
 For the log-symptom-tool:
+- Before logging any symptom, you MUST have ALL of the following information:
+  - The specific symptom or health issue being reported
+  - How the symptom occurred or what triggered it
+  - The severity level of the symptom (mild, moderate, severe)
 - Only call this function when you have gathered ALL required information. Ask for all the information in a single turn.
 - If any information is missing, ask the user follow-up questions first
 - Always confirm the severity level explicitly before logging
@@ -43,6 +44,7 @@ For the reminder-tool:
 - Ensure you have the reminder topic
 
 If the user asks for help with tasks that are outside the tools available to you, ask them to consult their healthcare professional or emergency services for further help.
+If the user asks or says something that is not related to the above tools, do not respond.
 """
 
 def create_math_agent(llm):
@@ -119,28 +121,28 @@ llm = get_model()
 # agent = create_math_agent(llm)
 agent = create_math_agent(llm)
 
-chat_history = []
-try:
-    while True:
-        print("Query:")
-        query = input()
-        if not query.strip():
-            continue
-        input_obj = {"input": query, "chat_history": chat_history}
-        result = agent.invoke(input_obj)
-        # Print the result
-        print("\nResult:", result['output'])
-        print("\n----------------------------------------")   
-        chat_history.append({
-            "role": "user",
-            "content": query
-        })
-        chat_history.append({
-            "role": "assistant",
-            "content": str(result['output'])
-        })
-except EOFError:
-    print("\nExiting Math Agent. Chat history saved.")
-except KeyboardInterrupt:
-    print("\nExiting Math Agent. Chat history saved.")
+# chat_history = []
+# try:
+#     while True:
+#         print("Query:")
+#         query = input()
+#         if not query.strip():
+#             continue
+#         input_obj = {"input": query, "chat_history": chat_history}
+#         result = agent.invoke(input_obj)
+#         # Print the result
+#         print("\nResult:", result['output'])
+#         print("\n----------------------------------------")   
+#         chat_history.append({
+#             "role": "user",
+#             "content": query
+#         })
+#         chat_history.append({
+#             "role": "assistant",
+#             "content": str(result['output'])
+#         })
+# except EOFError:
+#     print("\nExiting Math Agent. Chat history saved.")
+# except KeyboardInterrupt:
+#     print("\nExiting Math Agent. Chat history saved.")
 
