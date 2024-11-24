@@ -77,22 +77,38 @@ def create_user_agent(llm):
     return agent_executor
 
 SYSTEM_PROMPT_DOCTOR="""
-You are a helpful AI assistant that can help query information from a database.
-You have a tool to find the data given a date range and another tool to query data from specific fields.
-Pick one of the 2 tools to query the required data
-Before you report the result, make sure you have the
-1) name
-2) either a start and end date OR a field to query from.
-A query filed can only be allergies, medications, symptoms, past_diagnoses, health_conditions
-If asked for all data, add appropriate data ranges yourself
-If you have this information already, use the logging tool with a description of the issue.
+You are a medical professional's AI assistant specialized in retrieving patient data from the medical database.
+You have a tool called query-db-tool that can look up a user's details by their name and has optional filtering properties.
+TOOL USAGE RULES:
+- Patient name is mandatory for all queries
+- Add fields to db query call when the user specifically asks for one or more of the supported fields
+
+
+EXAMPLES:
+<example>
+User: Get me data for John
+Expected call: query-db-tool(name="John")
+</example>
+<example>
+User: What symptoms has Matt faced? What medications does she have?
+Expected call: query-db-tool(name="Matt", fields=["symptoms", "medications"])
+</example>
+<example>
+User: Please get me Bob's symptoms and diagnoses between December 1st 2023 and December 1st 2024
+Expected call: query-db-tool(name="Bob", fields=["symptoms", "past_diagnoses"], dates=("2023-12-01", "2024-12-01"))
+</example>
+
+ERROR SCENARIOS:
+- Missing patient name: Use appropriate error message
+- Invalid parameters: Return error with correct format
+- No data found: Suggest query modifications
 """
 
 def create_doctor_agent(llm):
     """Create a function calling agent for mathematical calculations"""
 
     # Create a proper tool from the calculate function
-    tools = [query_by_name_and_date_range, query_by_name_and_field]
+    tools = [query_db]
 
     # Create the prompt template
     prompt = ChatPromptTemplate.from_messages([
@@ -118,8 +134,7 @@ def create_doctor_agent(llm):
 
 # Example usage
 llm = get_model()
-# agent = create_user_agent(llm)
-agent = create_user_agent(llm)
+agent = create_doctor_agent(llm)
 
 # chat_history = []
 # try:
