@@ -89,7 +89,7 @@ They don't need to use the exact field names. Some aliases are:
 
 EXAMPLES:
 <example>
-User: Get me data for John
+User: Get John's details
 Expected call: query-db-tool(name="John")
 </example>
 <example>
@@ -97,7 +97,7 @@ User: What symptoms has Matt faced? What medications does she have?
 Expected call: query-db-tool(name="Matt", fields=["symptoms", "medications"])
 </example>
 <example>
-User: Please get me Bob's symptoms and diagnoses between December 1st 2023 and December 1st 2024
+User: Please get me Bob's symptoms and diagnostics between December 1st 2023 and December 1st 2024
 Expected call: query-db-tool(name="Bob", fields=["symptoms", "past_diagnoses"], dates=("2023-12-01", "2024-12-01"))
 </example>
 <example>
@@ -143,28 +143,28 @@ def create_doctor_agent(llm):
 llm = get_model()
 agent = create_doctor_agent(llm)
 
-# chat_history = []
-# try:
-#     while True:
-#         print("Query:")
-#         query = input()
-#         if not query.strip():
-#             continue
-#         input_obj = {"input": query, "chat_history": chat_history}
-#         result = agent.invoke(input_obj)
-#         # Print the result
-#         print("\nResult:", result['output'])
-#         print("\n----------------------------------------")   
-#         chat_history.append({
-#             "role": "user",
-#             "content": query
-#         })
-#         chat_history.append({
-#             "role": "assistant",
-#             "content": str(result['output'])
-#         })
-# except EOFError:
-#     print("\nExiting Math Agent. Chat history saved.")
-# except KeyboardInterrupt:
-#     print("\nExiting Math Agent. Chat history saved.")
+chat_history = []
+try:
+    while True:
+        print("Query:")
+        query = input()
+        if not query.strip():
+            continue
+        input_obj = {"input": query, "chat_history": chat_history}
+        result = agent.invoke(input_obj)
+        # Print the result
+        print("\nResult:", result['output'])
+        print("\n----------------------------------------")   
+        chat_history.append({
+            "role": "user",
+            "content": query
+        })
+        chat_history.append({
+            "role": "assistant",
+            "content": str(result['output'])
+        })
+except EOFError:
+    print("\nExiting Math Agent. Chat history saved.")
+except KeyboardInterrupt:
+    print("\nExiting Math Agent. Chat history saved.")
 
