@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from backend.types import UserCreate, QueryBody
 from backend.engine.agents import create_math_agent
 from backend.engine.llm import get_model
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 llm = get_model()
@@ -19,6 +20,14 @@ async def lifespan(app: FastAPI):
     MongoDB.close_mongodb_connection()
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/register")
 async def register_user(user: UserCreate):
