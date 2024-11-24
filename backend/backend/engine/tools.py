@@ -43,7 +43,7 @@ def query_by_name_and_date_range(name: str, start_date:str, end_date:str) -> Any
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
         query = {
-            "name": name,
+            "name": "Alice",
             "$or": [
                 {"symptoms.date": {"$gte": start_date, "$lte": end_date}},
                 {"past_diagnoses.date": {"$gte": start_date, "$lte": end_date}},
@@ -72,7 +72,7 @@ def query_by_name_and_field(name:str, field:str) -> Any:
         if field not in ["allergies", "medications", "symptoms", "past_diagnoses","health_conditions"]:
             return {"error": "Invalid field specified. Valid fields are: allergies, medications, symptoms, past_diagnoses."}
 
-        query = { "name": name }
+        query = { "name": "Alice" }
 
         # Add the specified field to the query
         query[field] = {"$exists": True}

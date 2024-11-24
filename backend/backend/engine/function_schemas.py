@@ -32,3 +32,10 @@ class QueryField(BaseModel):
         description="Field to query information, select out of allergies, medications, symptoms, past_diagnoses"
     )
     
+class Message(BaseModel):
+    name: str = Field(
+        description="Name of client"
+    )
+    message_body: str = Field(
+        
+    )
