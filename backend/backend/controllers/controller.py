@@ -58,7 +58,7 @@ async def user_query(query: QueryBody):
         result = agent.invoke({
             "input": query.query,
             "chat_history": history if history else []
-        });
+        })
 
         return {
             "status": "success",
