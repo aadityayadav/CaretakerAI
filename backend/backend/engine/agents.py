@@ -43,7 +43,9 @@ def create_math_agent(llm):
     """Create a function calling agent for mathematical calculations"""
     
     # Create a proper tool from the calculate function
-    tools = [notify_caretaker, log_symptom]
+
+    tools = [reminder, notify_caretaker, log_symptom]
+
 
     # Create the prompt template
     prompt = ChatPromptTemplate.from_messages([
@@ -109,7 +111,7 @@ def create_doctor_agent(llm):
 # Example usage
 llm = get_model()
 # agent = create_math_agent(llm)
-agent = create_doctor_agent(llm)
+agent = create_math_agent(llm)
 
 chat_history = []
 try:

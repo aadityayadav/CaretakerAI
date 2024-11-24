@@ -2,6 +2,7 @@
 import os
 from twilio.rest import Client
 from dotenv import load_dotenv
+from datetime import datetime
 import os
 load_dotenv()
 
@@ -14,7 +15,9 @@ client = Client(account_sid, auth_token)
 message = client.messages.create(
     body="This is a message sent with CareTakerAI where we take care of you.",
     from_="+19789694707",
-    to="+15483337532",
+    to="+15483337532"
+    # scheduleType="fixed",
+    # sendAt=datetime(2024, 11, 23, 23, 55, 27),
 )
 
 print(message.body)
