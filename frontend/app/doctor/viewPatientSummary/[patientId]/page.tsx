@@ -74,7 +74,34 @@ export default function ViewPatientSummary({
               </Box>
             )}
             
-            {/* Add similar sections for past_diagnoses and medications */}
+            {medicalData.past_diagnoses && medicalData.past_diagnoses.length > 0 && (
+              <Box mb={4}>
+                <Heading size="md" mb={2}>Past Diagnoses</Heading>
+                {medicalData.past_diagnoses.map((diagnosis, index) => (
+                  <Box key={index} mb={2}>
+                    <Text fontWeight="bold">{diagnosis.name}</Text>
+                    <Text>Description: {diagnosis.description}</Text>
+                    <Text>Doctor: {diagnosis.doctor_name}</Text>
+                    <Text>Date: {new Date(diagnosis.date).toLocaleDateString()}</Text>
+                  </Box>
+                ))}
+              </Box>
+            )}
+            
+            {medicalData.medications && medicalData.medications.length > 0 && (
+              <Box mb={4}>
+                <Heading size="md" mb={2}>Medications</Heading>
+                {medicalData.medications.map((medication, index) => (
+                  <Box key={index} mb={2}>
+                    <Text fontWeight="bold">{medication.name}</Text>
+                    <Text>Description: {medication.description}</Text>
+                    {medication.dosage && <Text>Dosage: {medication.dosage}</Text>}
+                    {medication.frequency && <Text>Frequency: {medication.frequency}</Text>}
+                    <Text>Date: {new Date(medication.date).toLocaleDateString()}</Text>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         ) : (
           <Text>
