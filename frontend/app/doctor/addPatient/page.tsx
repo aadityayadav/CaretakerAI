@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -16,7 +16,7 @@ import {
   HStack,
   IconButton,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
 
 interface MedicalCondition {
   description: string;
@@ -62,6 +62,20 @@ export default function AddPatient() {
     medications: [] as Medication[],
   });
 
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const scrollToNewSection = (type: string, id: number) => {
+    // Small delay to ensure the new section is rendered
+    setTimeout(() => {
+      sectionRefs.current[`${type}-${id}`]?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -70,6 +84,7 @@ export default function AddPatient() {
   };
 
   const addMedicalCondition = () => {
+    const newId = formData.medical_conditions.length + 1;
     setFormData(prev => ({
       ...prev,
       medical_conditions: [
@@ -77,13 +92,15 @@ export default function AddPatient() {
         {
           description: "",
           date: new Date().toISOString().split('T')[0],
-          id: prev.medical_conditions.length + 1
+          id: newId
         }
       ]
     }));
+    scrollToNewSection('medical_conditions', newId);
   };
 
   const addPastDiagnosis = () => {
+    const newId = formData.past_diagnoses.length + 1;
     setFormData(prev => ({
       ...prev,
       past_diagnoses: [
@@ -93,13 +110,15 @@ export default function AddPatient() {
           description: "",
           doctor_name: "",
           date: new Date().toISOString().split('T')[0],
-          id: prev.past_diagnoses.length + 1
+          id: newId
         }
       ]
     }));
+    scrollToNewSection('past_diagnoses', newId);
   };
 
   const addMedication = () => {
+    const newId = formData.medications.length + 1;
     setFormData(prev => ({
       ...prev,
       medications: [
@@ -109,13 +128,15 @@ export default function AddPatient() {
           dosage: "",
           frequency: "",
           date: new Date().toISOString().split('T')[0],
-          id: prev.medications.length + 1
+          id: newId
         }
       ]
     }));
+    scrollToNewSection('medications', newId);
   };
 
   const addAllergy = () => {
+    const newId = formData.allergies.length + 1;
     setFormData(prev => ({
       ...prev,
       allergies: [
@@ -124,10 +145,11 @@ export default function AddPatient() {
           name: "",
           severity: "",
           date: new Date().toISOString().split('T')[0],
-          id: prev.allergies.length + 1
+          id: newId
         }
       ]
     }));
+    scrollToNewSection('allergies', newId);
   };
 
   const handleMedicalConditionChange = (id: number, field: string, value: string) => {
@@ -189,6 +211,38 @@ export default function AddPatient() {
       isClosable: true,
     });
   };
+
+  const renderSectionHeader = (type: string, id: number, title: string, color: string) => (
+    <Box w="100%" position="relative" h="40px">
+      <IconButton
+        aria-label="Scroll to bottom"
+        icon={<ChevronDownIcon />}
+        onClick={scrollToBottom}
+        colorScheme={color}
+        size="sm"
+        position="absolute"
+        left="0"
+      />
+      <Heading 
+        size="md" 
+        color={`${color}.500`}
+        position="absolute"
+        left="50%"
+        transform="translateX(-50%)"
+      >
+        {title} #{id}
+      </Heading>
+      <IconButton
+        aria-label={`Remove ${title.toLowerCase()}`}
+        icon={<DeleteIcon />}
+        onClick={() => removeItem(type, id)}
+        colorScheme="red"
+        size="sm"
+        position="absolute"
+        right="0"
+      />
+    </Box>
+  );
 
   return (
     <Container maxW="container.md" py={8}>
@@ -282,6 +336,7 @@ export default function AddPatient() {
         {formData.medical_conditions.map((condition) => (
           <Box 
             key={condition.id}
+            ref={el => sectionRefs.current[`medical_conditions-${condition.id}`] = el}
             w="100%" 
             p={6} 
             borderWidth={1} 
@@ -291,26 +346,7 @@ export default function AddPatient() {
             borderColor="purple.200"
           >
             <VStack spacing={4}>
-              <Box w="100%" position="relative" h="40px">
-                <Heading 
-                  size="md" 
-                  color="purple.500"
-                  position="absolute"
-                  left="50%"
-                  transform="translateX(-50%)"
-                >
-                  Medical Condition #{condition.id}
-                </Heading>
-                <IconButton
-                  aria-label="Remove condition"
-                  icon={<DeleteIcon />}
-                  onClick={() => removeItem('medical_conditions', condition.id)}
-                  colorScheme="red"
-                  size="sm"
-                  position="absolute"
-                  right="0"
-                />
-              </Box>
+              {renderSectionHeader('medical_conditions', condition.id, 'Medical Condition', 'purple')}
               <FormControl>
                 <FormLabel>Description</FormLabel>
                 <Input
@@ -334,6 +370,7 @@ export default function AddPatient() {
         {formData.past_diagnoses.map((diagnosis) => (
           <Box 
             key={diagnosis.id}
+            ref={el => sectionRefs.current[`past_diagnoses-${diagnosis.id}`] = el}
             w="100%" 
             p={6} 
             borderWidth={1} 
@@ -343,26 +380,7 @@ export default function AddPatient() {
             borderColor="blue.200"
           >
             <VStack spacing={4}>
-              <Box w="100%" position="relative" h="40px">
-                <Heading 
-                  size="md" 
-                  color="blue.500"
-                  position="absolute"
-                  left="50%"
-                  transform="translateX(-50%)"
-                >
-                  Past Diagnosis #{diagnosis.id}
-                </Heading>
-                <IconButton
-                  aria-label="Remove diagnosis"
-                  icon={<DeleteIcon />}
-                  onClick={() => removeItem('past_diagnoses', diagnosis.id)}
-                  colorScheme="red"
-                  size="sm"
-                  position="absolute"
-                  right="0"
-                />
-              </Box>
+              {renderSectionHeader('past_diagnoses', diagnosis.id, 'Past Diagnosis', 'blue')}
               <FormControl>
                 <FormLabel>Diagnosis Name</FormLabel>
                 <Input
@@ -400,6 +418,7 @@ export default function AddPatient() {
         {formData.medications.map((medication) => (
           <Box 
             key={medication.id}
+            ref={el => sectionRefs.current[`medications-${medication.id}`] = el}
             w="100%" 
             p={6} 
             borderWidth={1} 
@@ -409,26 +428,7 @@ export default function AddPatient() {
             borderColor="green.200"
           >
             <VStack spacing={4}>
-              <Box w="100%" position="relative" h="40px">
-                <Heading 
-                  size="md" 
-                  color="green.500"
-                  position="absolute"
-                  left="50%"
-                  transform="translateX(-50%)"
-                >
-                  Medication #{medication.id}
-                </Heading>
-                <IconButton
-                  aria-label="Remove medication"
-                  icon={<DeleteIcon />}
-                  onClick={() => removeItem('medications', medication.id)}
-                  colorScheme="red"
-                  size="sm"
-                  position="absolute"
-                  right="0"
-                />
-              </Box>
+              {renderSectionHeader('medications', medication.id, 'Medication', 'green')}
               <FormControl>
                 <FormLabel>Medication Name</FormLabel>
                 <Input
@@ -466,6 +466,7 @@ export default function AddPatient() {
         {formData.allergies.map((allergy) => (
           <Box 
             key={allergy.id}
+            ref={el => sectionRefs.current[`allergies-${allergy.id}`] = el}
             w="100%" 
             p={6} 
             borderWidth={1} 
@@ -475,26 +476,7 @@ export default function AddPatient() {
             borderColor="orange.200"
           >
             <VStack spacing={4}>
-              <Box w="100%" position="relative" h="40px">
-                <Heading 
-                  size="md" 
-                  color="orange.500"
-                  position="absolute"
-                  left="50%"
-                  transform="translateX(-50%)"
-                >
-                  Allergy #{allergy.id}
-                </Heading>
-                <IconButton
-                  aria-label="Remove allergy"
-                  icon={<DeleteIcon />}
-                  onClick={() => removeItem('allergies', allergy.id)}
-                  colorScheme="red"
-                  size="sm"
-                  position="absolute"
-                  right="0"
-                />
-              </Box>
+              {renderSectionHeader('allergies', allergy.id, 'Allergy', 'orange')}
               <FormControl>
                 <FormLabel>Allergy Name</FormLabel>
                 <Input
@@ -526,36 +508,38 @@ export default function AddPatient() {
         ))}
 
         {/* Add Buttons */}
-        <HStack spacing={4} w="100%" justify="center">
-          <Button
-            leftIcon={<AddIcon />}
-            onClick={addMedicalCondition}
-            colorScheme="purple"
-          >
-            Add Medical Condition
-          </Button>
-          <Button
-            leftIcon={<AddIcon />}
-            onClick={addPastDiagnosis}
-            colorScheme="blue"
-          >
-            Add Past Diagnosis
-          </Button>
-          <Button
-            leftIcon={<AddIcon />}
-            onClick={addMedication}
-            colorScheme="green"
-          >
-            Add Medication
-          </Button>
-          <Button
-            leftIcon={<AddIcon />}
-            onClick={addAllergy}
-            colorScheme="orange"
-          >
-            Add Allergy
-          </Button>
-        </HStack>
+        <div ref={bottomRef}>
+          <HStack spacing={4} w="100%" justify="center">
+            <Button
+              leftIcon={<AddIcon />}
+              onClick={addMedicalCondition}
+              colorScheme="purple"
+            >
+              Add Medical Condition
+            </Button>
+            <Button
+              leftIcon={<AddIcon />}
+              onClick={addPastDiagnosis}
+              colorScheme="blue"
+            >
+              Add Past Diagnosis
+            </Button>
+            <Button
+              leftIcon={<AddIcon />}
+              onClick={addMedication}
+              colorScheme="green"
+            >
+              Add Medication
+            </Button>
+            <Button
+              leftIcon={<AddIcon />}
+              onClick={addAllergy}
+              colorScheme="orange"
+            >
+              Add Allergy
+            </Button>
+          </HStack>
+        </div>
 
         <Button 
           type="submit" 
