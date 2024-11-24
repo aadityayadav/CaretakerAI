@@ -77,30 +77,31 @@ const DEFAULT_FORM_DATA: FormDataType = {
 
 export default function AddPatient() {
   const toast = useToast();
-  const [formData, setFormData] = useState<FormDataType>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsedData = JSON.parse(saved);
-        return {
-          ...DEFAULT_FORM_DATA,
-          ...parsedData,
-          // Ensure numeric fields are properly typed
-          age: parsedData.age === '' ? '' : Number(parsedData.age),
-          weight: parsedData.weight === '' ? '' : Number(parsedData.weight),
-          height: parsedData.height === '' ? '' : Number(parsedData.height),
-        };
-      }
+  const [formData, setFormData] = useState<FormDataType>(DEFAULT_FORM_DATA);
+
+  // Load saved data on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsedData = JSON.parse(saved);
+      setFormData({
+        ...DEFAULT_FORM_DATA,
+        ...parsedData,
+        // Ensure numeric fields are properly typed
+        age: parsedData.age === '' ? '' : Number(parsedData.age),
+        weight: parsedData.weight === '' ? '' : Number(parsedData.weight),
+        height: parsedData.height === '' ? '' : Number(parsedData.height),
+      });
     }
-    return DEFAULT_FORM_DATA;
-  });
+  }, []); // Run once on mount
 
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
+  // Save to localStorage whenever formData changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
   }, [formData]);
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
