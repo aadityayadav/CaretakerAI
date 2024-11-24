@@ -1,8 +1,35 @@
+"use client";
 import { Box, Image, Heading, Button, Select, Flex } from "@chakra-ui/react";
 import { AddIcon, ViewIcon } from "@chakra-ui/icons";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [role, setRole] = useState("doctor");
+
+  useEffect(() => {
+    // Set initial role based on URL
+    if (pathname?.startsWith("/patient")) {
+      setRole("patient");
+    } else if (pathname?.startsWith("/doctor")) {
+      setRole("doctor");
+    }
+  }, [pathname]);
+
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRole = e.target.value;
+    setRole(newRole);
+    
+    if (newRole === "doctor") {
+      router.push("/doctor/addPatient");
+    } else {
+      router.push("/patient/1");
+    }
+  };
+
   return (
     <Box
       width="100%"
@@ -17,12 +44,12 @@ export default function Header() {
     >
       {/* Left side buttons */}
       <Flex gap={2}>
-        <Link href="/add-patient">
+        <Link href="/doctor/addPatient">
           <Button size="sm" leftIcon={<AddIcon />}>
             Add Patient
           </Button>
         </Link>
-        <Link href="/patient-summary">
+        <Link href="/doctor/viewPatientSummary/1">
           <Button size="sm" leftIcon={<ViewIcon />}>
             View Patient Summary
           </Button>
@@ -38,7 +65,7 @@ export default function Header() {
       </Flex>
 
       {/* Right side select */}
-      <Select width="150px" size="sm">
+      <Select width="150px" size="sm" value={role} onChange={handleRoleChange}>
         <option value="patient">👤 Patient</option>
         <option value="doctor">👨‍⚕️ Doctor</option>
       </Select>

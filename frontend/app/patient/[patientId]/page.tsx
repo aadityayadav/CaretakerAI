@@ -33,11 +33,16 @@ export default function PatientPage({
 
   useEffect(() => {
     setIsMounted(true);
-    toggleListening();
+    SpeechRecognition.startListening({ continuous: true });
+
+    return () => {
+      SpeechRecognition.stopListening();
+      resetTranscript();
+    };
   }, []);
 
   if (!isMounted) {
-    return null; // Render nothing on the server
+    return null;
   }
 
   if (!browserSupportsSpeechRecognition) {
@@ -48,31 +53,15 @@ export default function PatientPage({
     return <span>Microphone not available.</span>;
   }
 
-  function toggleListening() {
-    if (listening) {
-      SpeechRecognition.stopListening();
-    } else {
-      SpeechRecognition.startListening({ continuous: true });
-    }
-  }
-
   return (
-    <Box 
-      position="absolute"
-      top="0"
-      left="0"
-      right="0"
-      bottom="0"
-      display="flex" 
-      alignItems="center" 
+    <Box
+      width="100%"
+      height="calc(100vh - 100px)"
+      display="flex"
+      alignItems="center"
       justifyContent="center"
     >
-      <Flex
-        direction="column"
-        align="center"
-        justify="center"
-        gap={4}
-      >
+      <Flex direction="column" align="center" justify="center" gap={4}>
         <Box
           display="flex"
           flexDirection="column"
@@ -107,8 +96,7 @@ export default function PatientPage({
               animation={listening ? `${pulse} 1.5s infinite` : "none"}
             />
           </Box>
-          <Text>{transcript}</Text>
-          {/* <Button onClick={() => toggleListening()}>Start Listening</Button> */}
+          <Text mt={4}>{transcript}</Text>
         </Box>
       </Flex>
     </Box>
