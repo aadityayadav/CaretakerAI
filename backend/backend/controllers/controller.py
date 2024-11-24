@@ -79,14 +79,16 @@ async def doctor_query(query: QueryBody):
             "chat_history": history if history else []
         })
 
-        print(f"{query.summarize}")
-        if query.summarize:
-            summary = summarize_fetched_patient_data(llm, str(result['output']))
+        summary = (
+            summarize_fetched_patient_data(llm, str(result['output'])).content
+            if query.history and len(query.history) > 4
+            else None
+        )
 
         return {
             "status": "success",
             "result": result['output'],
-            "summary": summary.content if query.summarize else None
+            "summary": summary
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
