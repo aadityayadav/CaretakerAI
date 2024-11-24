@@ -2,13 +2,15 @@ from fastapi import FastAPI, HTTPException
 from backend.config.database import MongoDB
 from contextlib import asynccontextmanager
 from backend.types import UserCreate, QueryBody
-from backend.engine.agents import create_math_agent
+from backend.engine.agents import create_user_agent, create_doctor_agent
 from backend.engine.llm import get_model
 from fastapi.middleware.cors import CORSMiddleware
+from backend.engine.chain import check_discrepancies
 
 app = FastAPI()
 llm = get_model()
-agent = create_math_agent(llm)
+agent = create_user_agent(llm)
+doctor_agent = create_doctor_agent(llm)
 
 # Use FastAPI's lifespan for managing the connection
 @asynccontextmanager
@@ -58,6 +60,35 @@ async def user_query(query: QueryBody):
             "chat_history": history if history else []
         });
 
+        return {
+            "status": "success",
+            "result": result['output']
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/doctor/query")
+async def doctor_query(query: QueryBody):
+    try:
+        history = []
+        if query.history:
+            history = [q.model_dump() for q in query.history]
+        result = doctor_agent.invoke({
+            "input": query.query,
+            "chat_history": history if history else []
+        });
+
+        return {
+            "status": "success",
+            "result": result['output']
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/doctor/flags")
+async def raise_flags(name: str):
+    try:
+        result = check_discrepancies(llm)
         return {
             "status": "success",
             "result": result['output']
