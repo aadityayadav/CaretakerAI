@@ -57,64 +57,77 @@ def notify_caretaker(contents: str) -> Any:
     send_email(sender_name="Alice", recipient_name="Doc Name", body=contents)
 
 
-@tool("calculate-tool", args_schema=CalculateInputsSchema, return_direct=True)
-def calculate(expression: str) -> Any:
-    """Evaluate a mathematical expression""" 
-    try:
-        result = eval(expression)
-        return json.dumps({"result": result})
-    except Exception as e:
-        return json.dumps({"error": f"Invalid expression: {str(e)}"})
+# @tool("calculate-tool", args_schema=CalculateInputsSchema, return_direct=True)
+# def calculate(expression: str) -> Any:
+#     """Evaluate a mathematical expression""" 
+#     try:
+#         result = eval(expression)
+#         return json.dumps({"result": result})
+#     except Exception as e:
+#         return json.dumps({"error": f"Invalid expression: {str(e)}"})
 
-@tool("query-date-range-tool", args_schema=QueryDateRange, return_direct=True)
-def query_by_name_and_date_range(name: str, start_date:str, end_date:str) -> Any:
-    """
-    Query all relevant data for a user with the specified name and a date range
-    for symptoms, past diagnoses, allergies, medications, and health_conditions.
-    """
-    try:
-        # Convert strings to datetime objects
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+# @tool("query-date-range-tool", args_schema=QueryDateRange, return_direct=True)
+# def query_by_name_and_date_range(name: str, start_date:str, end_date:str) -> Any:
+#     """
+#     Query all relevant data for a user with the specified name and a date range
+#     for symptoms, past diagnoses, allergies, medications, and health_conditions.
+#     """
+#     try:
+#         # Convert strings to datetime objects
+#         start_date = datetime.strptime(start_date, '%Y-%m-%d')
+#         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-        query = {
-            "name": "Alice",
-            "$or": [
-                {"symptoms.date": {"$gte": start_date, "$lte": end_date}},
-                {"past_diagnoses.date": {"$gte": start_date, "$lte": end_date}},
-                {"allergies.date": {"$gte": start_date, "$lte": end_date}},
-                {"medications.date": {"$gte": start_date, "$lte": end_date}},
-            ]
-        }
+#         query = {
+#             "name": "Alice",
+#             "$or": [
+#                 {"symptoms.date": {"$gte": start_date, "$lte": end_date}},
+#                 {"past_diagnoses.date": {"$gte": start_date, "$lte": end_date}},
+#                 {"allergies.date": {"$gte": start_date, "$lte": end_date}},
+#                 {"medications.date": {"$gte": start_date, "$lte": end_date}},
+#             ]
+#         }
 
-        # Query the database
-        result = db.find(query)
-        return list(result)  # Return the results as a list
+#         # Query the database
+#         result = db.find(query)
+#         return list(result)  # Return the results as a list
 
-    except Exception as e:
-        return {"error": str(e)}
+#     except Exception as e:
+#         return {"error": str(e)}
 
-@tool("query-field-tool", args_schema=QueryField, return_direct=True)
-def query_by_name_and_field(name:str, field:str) -> Any:
-    """
-    Query a specific field (e.g., allergies, medications) for a user by name.
+@tool("query-db-tool", args_schema=QueryDB, return_direct=True)
+def query_db(name: str, fields: Optional[List[str]] = None, dates: Optional[Tuple[str, str]] = None) -> Any:
+    """Query the database for a user by name, and optionally filter by a combination of fields and date range"""
     
-    :param name: Name of the user
-    :param field: Field to query (allergies, medications, etc.)
-    :return: MongoDB query results
-    """
-    try:
-        if field not in ["allergies", "medications", "symptoms", "past_diagnoses","health_conditions"]:
-            return {"error": "Invalid field specified. Valid fields are: allergies, medications, symptoms, past_diagnoses."}
+    start_date, end_date = None, None
+    if dates:
+        start_date, end_date = dates
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-        query = { "name": "Alice" }
+    # Fetch the user document based on the unique name
+    user_data = db.find_one({"name": "Alice"})
+    if not user_data:
+        return {"error": "User not found"}
 
-        # Add the specified field to the query
-        query[field] = {"$exists": True}
+    # If no specific fields are provided, fetch all fields
+    fields_to_fetch = fields or {"allergies", "medications", "symptoms", "past_diagnoses", "health_conditions"}
 
-        # Query the database
-        result = db.find(query)
-        return list(result)  # Return the results as a list
+    # Filter the data based on the provided fields
+    filtered_data = {}
+    for field in fields_to_fetch:
+        if field in user_data:
+            # Filter entries by date range if start_date and end_date are provided
+            if start_date and end_date:
+                filtered_data[field] = [
+                    item for item in user_data[field]
+                    if start_date <= item['date'] <= end_date
+                ]
+            else:
+                filtered_data[field] = user_data[field]
 
-    except Exception as e:
-        return {"error": str(e)}
+    return filtered_data
+    
+    
+    

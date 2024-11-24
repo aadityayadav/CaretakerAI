@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional, List, Tuple
 
 class CalculateInputsSchema(BaseModel):
     expression: str = Field(
@@ -14,42 +15,39 @@ class LogSymptomSchema(BaseModel):
     )
 
 
-class QueryDateRange(BaseModel):
-    name: str = Field(
-        description="Name of the user."
-    )
-    start_date: str = Field(
-        description="start date in 'YYYY-MM-DD' format"
-    )
-    end_date: str = Field(
-        description="end date in 'YYYY-MM-DD' format"
-    )
+# class QueryDateRange(BaseModel):
+#     name: str = Field(
+#         description="Name of the user."
+#     )
+#     start_date: str = Field(
+#         description="start date in 'YYYY-MM-DD' format"
+#     )
+#     end_date: str = Field(
+#         description="end date in 'YYYY-MM-DD' format"
+#     )
 
-class QueryField(BaseModel):
+class QueryDB(BaseModel):
     name: str = Field(
-        description="Name of the user."
+        description="Name of the user to be searched for."
     )
-    field: str = Field(
-        description="Field to query information, select out of allergies, medications, symptoms, past_diagnoses"
+    fields: Optional[List[str]] = Field(
+        description="Field(s) to extract information from.",
+        allowed_values="allergies,medications,symptoms,past_diagnoses,health_conditions",
+        default=None
     )
-    
+    dates: Optional[Tuple[str, str]] = Field(
+        description="Tuple of the start and end dates to filter from in YYYY-MM-DD format",
+        examples="(2024-01-01, 2024-12-31)",
+        default=None
+    )
     
 class ReminderSchema(BaseModel):
     description: str = Field(
-        description="Why the reminder is being created"
+        description="The topic of reminder."
     )
-    # reminder_times: list = Field(
-    #     description="When should the reminder be triggered"
-    # )
-    # frequency:int = Field(
-    #     description="How frequently should the reminder be repeated"
-    # )
-
-
-        
 
 class SendEmailSchema(BaseModel):
     contents: str = Field(
-        description= "The user's description of the issue verbatim."
+        description= "The user's description of the issue as reported by the user themself"
 
     )
