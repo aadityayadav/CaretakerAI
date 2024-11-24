@@ -3,17 +3,25 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from backend.engine.llm import get_model
 from backend.engine.tools import *
 
-
+SYSTEM_PROMPT="""
+You are a helpful AI assistant that can help elderly people report their issues.
+You have a tool that logs symptoms if the user mentions any issues they face.
+Before you report a symptom, make sure you have:
+- What the issue is
+- When it started
+- The severity of the symptom
+If you have this information already, use the logging tool with a description of the issue.
+"""
 
 def create_math_agent(llm):
     """Create a function calling agent for mathematical calculations"""
     
     # Create a proper tool from the calculate function
-    tools = [calculate]
+    tools = [calculate, log_symptom]
 
     # Create the prompt template
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a calculator asistant, only use the calculate tool to perform any evaluations for the user."),
+        ("system", SYSTEM_PROMPT),
         MessagesPlaceholder(variable_name="chat_history"),
         ("user", "{input}"),
         MessagesPlaceholder(variable_name="agent_scratchpad"),
@@ -36,11 +44,28 @@ def create_math_agent(llm):
 llm = get_model()
 agent = create_math_agent(llm)
 
-# Test the agent
-result = agent.invoke({
-    "input": "What is 25 * 4 + 10?",
-    "chat_history": []
-})
-
-print(result)
+# chat_history = []
+# try:
+#     while True:
+#         print("Query:")
+#         query = input()
+#         if not query.strip():
+#             continue
+#         input_obj = {"input": query, "chat_history": chat_history}
+#         result = agent.invoke(input_obj)
+#         # Print the result
+#         print("\nResult:", result['output'])
+#         print("\n----------------------------------------")   
+#         chat_history.append({
+#             "role": "user",
+#             "content": query
+#         })
+#         chat_history.append({
+#             "role": "assistant",
+#             "content": str(result['output'])
+#         })
+# except EOFError:
+#     print("\nExiting Math Agent. Chat history saved.")
+# except KeyboardInterrupt:
+#     print("\nExiting Math Agent. Chat history saved.")
 
