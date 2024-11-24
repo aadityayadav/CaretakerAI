@@ -27,7 +27,8 @@ export default function RootLayout({
           <Providers>
             <Box
               background="radial-gradient(circle, rgba(220,220,235,1) 0%, rgba(230,230,255,1) 100%)"
-              height="100vh"
+              minHeight="100vh"
+              height="100%"
               padding={4}
             >
               <Box
