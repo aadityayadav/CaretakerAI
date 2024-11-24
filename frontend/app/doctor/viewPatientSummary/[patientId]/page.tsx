@@ -41,32 +41,34 @@ export default function ViewPatientSummary({
 }) {
   const { patientId } = use(params);
   const [medicalData, setMedicalData] = useState<MedicalRecord | null>(null);
-  const [patientFlags, setPatientFlags] = useState<PatientFlags | null>(null);
+  const [patientFlags, setPatientFlags] = useState<string[]>([]); // Changed to string array
 
   // Add useEffect to fetch flags on page load
   useEffect(() => {
     const fetchFlags = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/doctor/flags/Alice`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" }
-        });
-        
+        const response = await fetch(
+          `http://127.0.0.1:8000/doctor/flags/Alice`,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
-        
+
         const data = await response.json();
-        setPatientFlags(data);
+        setPatientFlags(data.result.split("- ").filter((flag: string) => flag.trim()));
       } catch (error) {
         console.error("Error fetching flags:", error);
       }
     };
-    
+
     fetchFlags();
   }, []);
 
-console.log(patientFlags);
+  console.log(patientFlags);
   return (
     <Box height={"100%"} display="flex" flexDirection="row" gap={4}>
       <Box
@@ -76,19 +78,23 @@ console.log(patientFlags);
         borderRadius="lg"
         boxShadow="sm"
       >
-        <Flex align="center" gap={2}>
+        <Flex display="flex" gap={2} flexDirection="column"> 
           <Heading>Patient Summary: Alice</Heading>
-          
-          {/* {patientFlags?.flags.map((flag, index) => (
-            <Badge 
-              key={index}
-              colorScheme={flag.includes("reliable") ? "green" : "red"}
-              variant="subtle"
-              fontSize="0.8em"
-            >
-              {flag}
-            </Badge>
-          ))} */}
+
+          <Flex flexWrap="wrap" gap={2}> 
+            {patientFlags.map((flag, index) => (
+              <Badge 
+                key={index}
+                colorScheme={flag.includes("reliable") ? "green" : "red"}
+                variant="subtle"
+                fontSize="0.8em"
+                size="xs"
+                whiteSpace="normal"
+              >
+                {flag}
+              </Badge>
+            ))}
+          </Flex>
         </Flex>
         <Divider my={2} borderColor="blackAlpha.500" />
 
@@ -97,66 +103,87 @@ console.log(patientFlags);
             {/* Display medical data sections */}
             {medicalData.symptoms && medicalData.symptoms.length > 0 && (
               <Box mb={4}>
-                <Heading size="md" mb={2}>Symptoms</Heading>
+                <Heading size="md" mb={2}>
+                  Symptoms
+                </Heading>
                 {medicalData.symptoms.map((symptom, index) => (
                   <Text key={index}>
-                    {symptom.description} - {new Date(symptom.date).toLocaleDateString()}
+                    {symptom.description} -{" "}
+                    {new Date(symptom.date).toLocaleDateString()}
                   </Text>
                 ))}
               </Box>
             )}
-            
+
             {medicalData.allergies && medicalData.allergies.length > 0 && (
               <Box mb={4}>
-                <Heading size="md" mb={2}>Allergies</Heading>
+                <Heading size="md" mb={2}>
+                  Allergies
+                </Heading>
                 {medicalData.allergies.map((allergy, index) => (
                   <Text key={index}>
-                    {allergy.name} - {new Date(allergy.date).toLocaleDateString()}
+                    {allergy.name} -{" "}
+                    {new Date(allergy.date).toLocaleDateString()}
                   </Text>
                 ))}
               </Box>
             )}
-            
-            {medicalData.past_diagnoses && medicalData.past_diagnoses.length > 0 && (
-              <Box mb={4}>
-                <Heading size="md" mb={2}>Past Diagnoses</Heading>
-                {medicalData.past_diagnoses.map((diagnosis, index) => (
-                  <Box key={index} mb={2}>
-                    <Text fontWeight="bold">{diagnosis.name}</Text>
-                    <Text>Description: {diagnosis.description}</Text>
-                    <Text>Doctor: {diagnosis.doctor_name}</Text>
-                    <Text>Date: {new Date(diagnosis.date).toLocaleDateString()}</Text>
-                  </Box>
-                ))}
-              </Box>
-            )}
-            
+
+            {medicalData.past_diagnoses &&
+              medicalData.past_diagnoses.length > 0 && (
+                <Box mb={4}>
+                  <Heading size="md" mb={2}>
+                    Past Diagnoses
+                  </Heading>
+                  {medicalData.past_diagnoses.map((diagnosis, index) => (
+                    <Box key={index} mb={2}>
+                      <Text fontWeight="bold">{diagnosis.name}</Text>
+                      <Text>Description: {diagnosis.description}</Text>
+                      <Text>Doctor: {diagnosis.doctor_name}</Text>
+                      <Text>
+                        Date: {new Date(diagnosis.date).toLocaleDateString()}
+                      </Text>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+
             {medicalData.medications && medicalData.medications.length > 0 && (
               <Box mb={4}>
-                <Heading size="md" mb={2}>Medications</Heading>
+                <Heading size="md" mb={2}>
+                  Medications
+                </Heading>
                 {medicalData.medications.map((medication, index) => (
                   <Box key={index} mb={2}>
                     <Text fontWeight="bold">{medication.name}</Text>
                     <Text>Description: {medication.description}</Text>
-                    {medication.dosage && <Text>Dosage: {medication.dosage}</Text>}
-                    {medication.frequency && <Text>Frequency: {medication.frequency}</Text>}
-                    <Text>Date: {new Date(medication.date).toLocaleDateString()}</Text>
+                    {medication.dosage && (
+                      <Text>Dosage: {medication.dosage}</Text>
+                    )}
+                    {medication.frequency && (
+                      <Text>Frequency: {medication.frequency}</Text>
+                    )}
+                    <Text>
+                      Date: {new Date(medication.date).toLocaleDateString()}
+                    </Text>
                   </Box>
                 ))}
               </Box>
             )}
           </Box>
         ) : (
-          <Text>
-            Ask the AI assistant to retrieve patient information.
-          </Text>
+          <Text>Ask the AI assistant to retrieve patient information.</Text>
         )}
       </Box>
       <Box width={"50%"} pt={4}>
-        <Ai 
-          params={{ userId: patientId, isDoctor: true, onMedicalDataUpdate: setMedicalData }}
+        <Ai
+          params={{
+            userId: patientId,
+            isDoctor: true,
+            onMedicalDataUpdate: setMedicalData,
+          }}
         />
       </Box>
     </Box>
-  );  
+  );
 }
