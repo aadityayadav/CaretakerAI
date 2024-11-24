@@ -58,6 +58,8 @@ export default function RootLayout({
                     backgroundColor="rgba(255, 255, 255, 0.35)"
                     border="1px solid rgba(255, 255, 255, 0.2)"
                     padding={4}
+                    display="grid"
+                    flexDirection="column"
                     minHeight="100vh"
                     height="100%"
                     boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
