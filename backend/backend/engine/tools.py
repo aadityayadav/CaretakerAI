@@ -16,7 +16,7 @@ def log_symptom(description: str):
     user_query = {"email": "alice@example.com"}
     update_command = {
         "$push": {
-            "symptoms": 
+            "symptoms":
                 SymptomBase(description=description, date=symptom_time).model_dump()
         }
     }
@@ -24,7 +24,7 @@ def log_symptom(description: str):
 
 @tool("calculate-tool", args_schema=CalculateInputsSchema, return_direct=True)
 def calculate(expression: str) -> Any:
-    """Evaluate a mathematical expression""" 
+    """Evaluate a mathematical expression"""
     try:
         result = eval(expression)
         return json.dumps({"result": result})
