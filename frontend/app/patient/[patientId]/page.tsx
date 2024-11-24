@@ -5,7 +5,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { keyframes } from "@emotion/react";
-
+import { use } from "react";
 const pulse = keyframes`
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.15); opacity: 0.7; }
@@ -20,8 +20,9 @@ const pulseBackground = keyframes`
 export default function PatientPage({
   params,
 }: {
-  params: { patientId: string };
+  params: Promise<{ patientId: string }>;
 }) {
+  const { patientId } = use(params);
   const [isMounted, setIsMounted] = useState(false);
   const {
     transcript,
