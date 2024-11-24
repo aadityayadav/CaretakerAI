@@ -19,14 +19,40 @@ const pulseBackground = keyframes`
   100% { transform: scale(1.5); opacity: 0; }
 `;
 
-export default function Ai({
-  params,
-  isDoctor = false,
-}: {
-  params: Promise<{ userId: string }>;
-  isDoctor?: boolean;
-}) {
-  const { userId } = use(params);
+interface MedicalRecord {
+  symptoms?: {
+    description: string;
+    date: string;
+  }[];
+  allergies?: {
+    name: string;
+    date: string;
+  }[];
+  past_diagnoses?: {
+    name: string;
+    description: string;
+    doctor_name: string;
+    date: string;
+  }[];
+  medications?: {
+    name: string;
+    date: string;
+    description: string;
+    dosage?: string;
+    frequency?: string;
+  }[];
+}
+
+interface AiProps {
+  params: {
+    userId: string;
+    isDoctor: boolean;
+    onMedicalDataUpdate?: (data: MedicalRecord) => void;
+  };
+}
+
+export default function Ai({ params }: AiProps) {
+  const { userId, isDoctor, onMedicalDataUpdate } = params;
   const [isMounted, setIsMounted] = useState(false);
 
   const {
@@ -127,7 +153,7 @@ export default function Ai({
 
       console.log("Sending POST request with data:", postData);
 
-      fetch(`http://127.0.0.1:8000/${isDoctor ? 'doctor' : 'user'}/query/`, {
+      fetch(`http://127.0.0.1:8000/${isDoctor ? "doctor" : "user"}/query/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,17 +163,24 @@ export default function Ai({
         .then((response) => response.json())
         .then((data) => {
           console.log("Received response:", data);
-          if (data.result) {
+
+          if (
+            typeof data.result === "object" &&
+            isDoctor &&
+            onMedicalDataUpdate
+          ) {
+            onMedicalDataUpdate(data.result);
+            if (data.summary) {
+              playAudioResponse(data.summary);
+            }
+          } else if (data.result) {
             const newHistory = [
               ...chatHistory,
               { role: "user", content: transcript.trim() },
               { role: "assistant", content: data.result },
             ];
             setChatHistory(newHistory);
-
-            // Stop listening before playing audio
             SpeechRecognition.stopListening();
-            // Play the response
             playAudioResponse(data.result);
           }
         })
@@ -169,6 +202,7 @@ export default function Ai({
     cumulativeTranscript,
     processedTranscripts,
     isActivated,
+    onMedicalDataUpdate,
   ]);
 
   // Modify cleanup to also handle audio
@@ -217,9 +251,9 @@ export default function Ai({
             h="48px"
             _before={{
               content: '""',
-              position: 'absolute',
-              inset: '-4px',
-              borderRadius: 'full',
+              position: "absolute",
+              inset: "-4px",
+              borderRadius: "full",
               background: isDoctor ? "#FB8B24" : "#0081FB",
               animation: `${pulseBackground} 2.5s infinite`,
               zIndex: -1,
