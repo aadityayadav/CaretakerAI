@@ -12,3 +12,23 @@ class LogSymptomSchema(BaseModel):
     description: str = Field(
         description="Description of the symptom faced by user.",
     )
+
+class QueryDateRange(BaseModel):
+    name: str = Field(
+        description="Name of the user."
+    )
+    start_date: str = Field(
+        description="start date in 'YYYY-MM-DD' format"
+    )
+    end_date: str = Field(
+        description="end date in 'YYYY-MM-DD' format"
+    )
+
+class QueryField(BaseModel):
+    name: str = Field(
+        description="Name of the user."
+    )
+    field: str = Field(
+        description="Field to query information, select out of allergies, medications, symptoms, past_diagnoses"
+    )
+    

@@ -1,34 +1,3 @@
-# import pymongo
-# from pymongo import MongoClient
-
-# # Connect to MongoDB (Local or Atlas)
-# # If using MongoDB Atlas, use the connection string you received from the Atlas dashboard.
-# client = MongoClient("mongodb://localhost:27017/")  # Local MongoDB connection
-# # Or for Atlas:
-# # client = MongoClient("mongodb+srv://<username>:<password>@cluster0.mongodb.net/test?retryWrites=true&w=majority")
-
-# # Connect to the database (this will create the database if it doesn't exist)
-# db = client["my_database"]
-
-# # Connect to a collection (this will create the collection if it doesn't exist)
-# collection = db["my_collection"]
-
-# # Insert data into the collection
-# data = {"name": "John", "age": 30, "city": "New York"}
-# insert_result = collection.insert_one(data)  # Insert a single document
-# print("Inserted data with ID:", insert_result.inserted_id)
-
-# # Retrieve data from the collection
-# result = collection.find_one({"name": "John"})  # Find one document
-# print("Found document:", result)
-
-# # You can also retrieve all documents using find()
-# all_documents = collection.find()  # Returns a cursor
-# for document in all_documents:
-#     print(document)
-
-
-
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
