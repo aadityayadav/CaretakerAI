@@ -23,6 +23,10 @@ class MedicationBase(BaseModel):
     description: Optional[str] = None
     dosage: Optional[str] = None
     frequency: Optional[str] = None
+    
+class HealthCondition(BaseModel):
+    name: str
+    date: datetime
 
 class UserCreate(BaseModel):
     name: str
@@ -35,6 +39,7 @@ class UserCreate(BaseModel):
     past_diagnoses: Optional[List[DiagnosisBase]] = None
     allergies: Optional[List[AllergyBase]] = None
     medications: Optional[List[MedicationBase]] = None
+    health_conditions: Optional[List[HealthCondition]] = None
     
 class QueryBody(BaseModel):
     query: str
