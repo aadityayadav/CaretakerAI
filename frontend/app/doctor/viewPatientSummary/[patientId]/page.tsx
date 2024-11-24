@@ -20,7 +20,7 @@ export default function ViewPatientSummary({
         borderRadius="lg"
         boxShadow="sm"
       >
-        <Heading>Patient Summary: {patientId}</Heading>
+        <Heading>Patient Summary: Alice</Heading>
         <Divider
           my={2}
 
