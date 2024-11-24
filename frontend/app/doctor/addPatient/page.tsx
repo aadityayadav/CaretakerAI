@@ -16,7 +16,7 @@ import {
   HStack,
   IconButton,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, ChevronDownIcon, RepeatIcon } from '@chakra-ui/icons';
 
 interface MedicalCondition {
   description: string;
@@ -47,39 +47,82 @@ interface Allergy {
   id: number;
 }
 
+interface FormDataType {
+  name: string;
+  email: string;
+  age: number | '';
+  gender: string;
+  weight: number | '';
+  height: number | '';
+  medical_conditions: MedicalCondition[];
+  past_diagnoses: PastDiagnosis[];
+  allergies: Allergy[];
+  medications: Medication[];
+}
+
+const STORAGE_KEY = 'addPatientFormData';
+
+const DEFAULT_FORM_DATA: FormDataType = {
+  name: "",
+  email: "",
+  age: '',
+  gender: "",
+  weight: '',
+  height: '',
+  medical_conditions: [],
+  past_diagnoses: [],
+  allergies: [],
+  medications: [],
+};
+
 export default function AddPatient() {
   const toast = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    age: "",
-    gender: "",
-    weight: "",
-    height: "",
-    medical_conditions: [] as MedicalCondition[],
-    past_diagnoses: [] as PastDiagnosis[],
-    allergies: [] as Allergy[],
-    medications: [] as Medication[],
+  const [formData, setFormData] = useState<FormDataType>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsedData = JSON.parse(saved);
+        return {
+          ...DEFAULT_FORM_DATA,
+          ...parsedData,
+          // Ensure numeric fields are properly typed
+          age: parsedData.age === '' ? '' : Number(parsedData.age),
+          weight: parsedData.weight === '' ? '' : Number(parsedData.weight),
+          height: parsedData.height === '' ? '' : Number(parsedData.height),
+        };
+      }
+    }
+    return DEFAULT_FORM_DATA;
   });
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  }, [formData]);
 
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const scrollToNewSection = (type: string, id: number) => {
-    // Small delay to ensure the new section is rendered
     setTimeout(() => {
       sectionRefs.current[`${type}-${id}`]?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const handleNumberInputChange = (field: string, valueAsString: string, valueAsNumber: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: valueAsString === '' ? '' : valueAsNumber,
     }));
   };
 
@@ -200,6 +243,10 @@ export default function AddPatient() {
     }));
   };
 
+  const clearForm = () => {
+    setFormData(DEFAULT_FORM_DATA);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log(JSON.stringify(formData, null, 2));
@@ -210,6 +257,7 @@ export default function AddPatient() {
       duration: 3000,
       isClosable: true,
     });
+    clearForm();
   };
 
   const renderSectionHeader = (type: string, id: number, title: string, color: string) => (
@@ -247,7 +295,26 @@ export default function AddPatient() {
   return (
     <Container maxW="container.md" py={8}>
       <VStack spacing={8} as="form" onSubmit={handleSubmit}>
-        <Heading size="lg" color="teal.600">Add New Patient</Heading>
+        <Box position="relative" w="100%" h="40px">
+          <IconButton
+            aria-label="Reset form"
+            icon={<RepeatIcon />}
+            onClick={clearForm}
+            colorScheme="gray"
+            size="md"
+            position="absolute"
+            left="0"
+          />
+          <Heading 
+            size="lg" 
+            color="teal.600"
+            position="absolute"
+            left="50%"
+            transform="translateX(-50%)"
+          >
+            Add New Patient
+          </Heading>
+        </Box>
 
         {/* Basic Information */}
         <Box 
@@ -261,48 +328,44 @@ export default function AddPatient() {
         >
           <VStack spacing={4}>
             <Heading size="md" color="teal.500" mb={2}>Basic Information</Heading>
+            
             <FormControl isRequired>
-              <FormLabel color="gray.700">Full Name</FormLabel>
+              <FormLabel>Full Name</FormLabel>
               <Input
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                borderColor="gray.300"
-                _hover={{ borderColor: "teal.300" }}
-                _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px teal.500" }}
               />
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel color="gray.700">Email</FormLabel>
+              <FormLabel>Email</FormLabel>
               <Input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                borderColor="gray.300"
-                _hover={{ borderColor: "teal.300" }}
-                _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px teal.500" }}
               />
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel color="gray.700">Age</FormLabel>
-              <NumberInput min={0} max={150}>
-                <NumberInputField
-                  value={formData.age}
-                  onChange={(e) => handleInputChange("age", e.target.value)}
-                />
+              <FormLabel>Age</FormLabel>
+              <NumberInput
+                value={formData.age}
+                onChange={(valueString, valueNumber) => 
+                  handleNumberInputChange("age", valueString, valueNumber)
+                }
+                min={0}
+                max={150}
+              >
+                <NumberInputField />
               </NumberInput>
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel color="gray.700">Gender</FormLabel>
+              <FormLabel>Gender</FormLabel>
               <Select
-                placeholder="Select gender"
                 value={formData.gender}
                 onChange={(e) => handleInputChange("gender", e.target.value)}
-                borderColor="gray.300"
-                _hover={{ borderColor: "teal.300" }}
-                _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px teal.500" }}
+                placeholder="Select gender"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -312,21 +375,29 @@ export default function AddPatient() {
 
             <FormControl>
               <FormLabel>Weight (kg)</FormLabel>
-              <NumberInput min={0} precision={1}>
-                <NumberInputField
-                  value={formData.weight}
-                  onChange={(e) => handleInputChange("weight", e.target.value)}
-                />
+              <NumberInput
+                value={formData.weight}
+                onChange={(valueString, valueNumber) => 
+                  handleNumberInputChange("weight", valueString, valueNumber)
+                }
+                min={0}
+                precision={1}
+              >
+                <NumberInputField />
               </NumberInput>
             </FormControl>
 
             <FormControl>
               <FormLabel>Height (cm)</FormLabel>
-              <NumberInput min={0} precision={1}>
-                <NumberInputField
-                  value={formData.height}
-                  onChange={(e) => handleInputChange("height", e.target.value)}
-                />
+              <NumberInput
+                value={formData.height}
+                onChange={(valueString, valueNumber) => 
+                  handleNumberInputChange("height", valueString, valueNumber)
+                }
+                min={0}
+                precision={1}
+              >
+                <NumberInputField />
               </NumberInput>
             </FormControl>
           </VStack>
