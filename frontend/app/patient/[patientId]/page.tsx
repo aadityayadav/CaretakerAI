@@ -6,6 +6,7 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import { keyframes } from "@emotion/react";
 import { use } from "react";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 const pulse = keyframes`
   0% { transform: scale(1); opacity: 1; }
@@ -42,6 +43,7 @@ export default function PatientPage({
   );
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isActivated, setIsActivated] = useState(false);
 
   const playAudioResponse = async (text: string) => {
     try {
@@ -85,13 +87,16 @@ export default function PatientPage({
 
   useEffect(() => {
     setIsMounted(true);
-    SpeechRecognition.startListening();
-
     return () => {
       SpeechRecognition.stopListening();
       resetTranscript();
     };
   }, []);
+
+  const handleActivate = () => {
+    setIsActivated(true);
+    SpeechRecognition.startListening();
+  };
 
   useEffect(() => {
     if (
@@ -189,44 +194,59 @@ export default function PatientPage({
       justifyContent="center"
     >
       <Flex direction="column" align="center" justify="center" gap={4}>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-        >
-          {listening && (
-            <Text color="gray.500" fontSize="sm" mb={4}>
-              Listening in background...
-            </Text>
-          )}
-          <Box position="relative" width="100px" height="100px">
-            <Box
-              position="absolute"
-              top="0"
-              left="0"
-              width="100%"
-              height="100%"
-              borderRadius="50%"
-              background="gray"
-              animation={
-                listening ? `${pulseBackground} 1.5s infinite` : "none"
-              }
-            />
-            <Box
-              position="absolute"
-              top="0"
-              left="0"
-              width="100%"
-              height="100%"
-              borderRadius="50%"
-              background="radial-gradient(circle, rgba(240,240,240,1) 40%, transparent 30%), linear-gradient(to right, cyan, blue, purple)"
-              border="none"
-              animation={listening ? `${pulse} 1.5s infinite` : "none"}
-            />
+        {!isActivated ? (
+          <Button
+            bg="#0081FB"
+            color="white"
+            _hover={{ bg: "#006ee0" }}
+            size="lg"
+            onClick={handleActivate}
+            mb={4}
+            borderRadius="full"
+            rightIcon={<ArrowForwardIcon />}
+          >
+            Activate Caretaker
+          </Button>
+        ) : (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {listening && (
+              <Text color="gray.500" fontSize="sm" mb={4}>
+                Listening in background...
+              </Text>
+            )}
+            <Box position="relative" width="100px" height="100px">
+              <Box
+                position="absolute"
+                top="0"
+                left="0"
+                width="100%"
+                height="100%"
+                borderRadius="50%"
+                background="gray"
+                animation={
+                  listening ? `${pulseBackground} 1.5s infinite` : "none"
+                }
+              />
+              <Box
+                position="absolute"
+                top="0"
+                left="0"
+                width="100%"
+                height="100%"
+                borderRadius="50%"
+                background="radial-gradient(circle, rgba(240,240,240,1) 40%, transparent 30%), linear-gradient(to right, cyan, blue, purple)"
+                border="none"
+                animation={listening ? `${pulse} 1.5s infinite` : "none"}
+              />
+            </Box>
+            <Text mt={4}>{transcript}</Text>
           </Box>
-          <Text mt={4}>{transcript}</Text>
-        </Box>
+        )}
 
         {audioUrl && (
           <Box mt={4} width="300px">
