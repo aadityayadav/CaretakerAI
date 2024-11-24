@@ -82,11 +82,11 @@ export default function PatientPage({
         .then((response) => response.json())
         .then((data) => {
           console.log("Received response:", data);
-          if (data.response) {
+          if (data.result) {
             const newHistory = [
               ...chatHistory,
               { role: "user", content: transcript.trim() },
-              { role: "assistant", content: data.response },
+              { role: "assistant", content: data.result },
             ];
             setChatHistory(newHistory);
           }
