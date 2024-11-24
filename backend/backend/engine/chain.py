@@ -27,7 +27,7 @@ pipeline = [
 # Execute the aggregation
 result = list(db.aggregate(pipeline))
 
-prompt=f"""
+CHECK_DISCREPANCIES_PROMPT=f"""
 You will be provided a user's recent health history in JSON format.
 For each listed property such as 'symptoms', 'health_conditions', 'medications', check for any possible factual inconsistencies in the data.
 Here are examples of some scenarios you should report on if they are detected:
@@ -52,6 +52,7 @@ Only list the bullet point themselves and nothing else.
 """
 
 def check_discrepancies(llm):
+    prompt = CHECK_DISCREPANCIES_PROMPT.format(result=result)
     response = llm.invoke(
         {
             "input": prompt
@@ -59,11 +60,22 @@ def check_discrepancies(llm):
     )
     return response
 
-def summarize_fetched_patient_data(llm, json_to_summarize: dict):
-    prompt = f"Summarize this shit:\n{json_to_summarize}"
+def summarize_fetched_patient_data(llm, json_to_summarize: str):
+    prompt = """
+    Please provide a concise medical summary of the following patient data.
+    Focus on key points including:
+    - Primary symptoms
+    - Key diagnoses
+    - Important medications
+    - Critical health conditions
+    - Notable allergies
+
+    Patient Data:
+    {data}
+    """
     response = llm.invoke(
         {
-            "input": prompt,
+            "input": prompt.format(data=json_to_summarize),
         }
     )
     return response
