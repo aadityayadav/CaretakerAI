@@ -53,7 +53,7 @@ export default function Ai({
       const options = {
         method: "POST",
         headers: {
-          "xi-api-key": "sk_5bfd898b10d62dc9e595bb41daf17f4d2bcda1cbf6f1eb4a",
+          "xi-api-key": "sk_2fd69d8c83a10289b0ceadbcfde993c1e9d55dd77dfb5163",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -127,7 +127,7 @@ export default function Ai({
 
       console.log("Sending POST request with data:", postData);
 
-      fetch("http://127.0.0.1:8000/user/query/", {
+      fetch(`http://127.0.0.1:8000/${isDoctor ? 'doctor' : 'user'}/query/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
